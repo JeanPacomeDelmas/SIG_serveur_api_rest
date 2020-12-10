@@ -9,7 +9,7 @@ public class Etage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private int gid;
     @Column(name = "nom", unique = true, nullable = false)
     private String nom;
 
@@ -19,8 +19,8 @@ public class Etage {
         this.nom = nom;
     }
 
-    public int getId() {
-        return id;
+    public int getGid() {
+        return gid;
     }
 
     public String getNom() {

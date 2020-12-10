@@ -10,51 +10,51 @@ public class Porte {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "gid")
+    private int gid;
     @OneToOne
-    @JoinColumn(name = "id_salle1", nullable = false)
-    private Salle salle1;
+    @JoinColumn(name = "id_salle_1", nullable = false)
+    private Salle salle_1;
     @OneToOne
-    @JoinColumn(name = "id_salle2", nullable = false)
-    private Salle salle2;
-    @Column(name = "geo", nullable = false)
-    private LineString geo;
+    @JoinColumn(name = "id_salle_2", nullable = false)
+    private Salle salle_2;
+    @Column(name = "geom", nullable = false)
+    private LineString geom;
 
     public Porte() { }
 
-    public Porte(Salle salle1, Salle salle2, LineString geo) {
-        this.salle1 = salle1;
-        this.salle2 = salle2;
-        this.geo = geo;
+    public Porte(Salle salle_1, Salle salle_2, LineString geom) {
+        this.salle_1 = salle_1;
+        this.salle_2 = salle_2;
+        this.geom = geom;
     }
 
-    public int getId() {
-        return id;
+    public int getGid() {
+        return gid;
     }
 
-    public Salle getSalle1() {
-        return salle1;
+    public Salle getSalle_1() {
+        return salle_1;
     }
 
-    public void setSalle1(Salle salle1) {
-        this.salle1 = salle1;
+    public void setSalle_1(Salle salle1) {
+        this.salle_1 = salle1;
     }
 
-    public Salle getSalle2() {
-        return salle2;
+    public Salle getSalle_2() {
+        return salle_2;
     }
 
-    public void setSalle2(Salle salle2) {
-        this.salle2 = salle2;
+    public void setSalle_2(Salle salle2) {
+        this.salle_2 = salle2;
     }
 
-    public LineString getGeo() {
-        return geo;
+    public LineString getGeom() {
+        return geom;
     }
 
-    public void setGeo(LineString geo) {
-        this.geo = geo;
+    public void setGeom(LineString geo) {
+        this.geom = geo;
     }
 
 }

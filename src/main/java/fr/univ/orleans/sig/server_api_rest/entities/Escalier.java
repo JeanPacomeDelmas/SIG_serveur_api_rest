@@ -11,97 +11,97 @@ public class Escalier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "gid")
     private int id;
     @OneToOne
-    @JoinColumn(name = "id_etage_bas", nullable = false)
-    private Etage etage_bas;
+    @JoinColumn(name = "id_etage_b", nullable = false)
+    private Etage etage_b;
     @OneToOne
-    @JoinColumn(name = "id_etage_haut", nullable = false)
-    private Etage etage_haut;
+    @JoinColumn(name = "id_etage_h", nullable = false)
+    private Etage etage_h;
     @OneToOne
-    @JoinColumn(name = "id_salle_bas", nullable = false)
-    private Salle salle_bas;
+    @JoinColumn(name = "id_salle_b", nullable = false)
+    private Salle salle_b;
     @OneToOne
-    @JoinColumn(name = "id_salle_haut", nullable = false)
-    private Salle salle_haut;
-    @Column(name = "geo", nullable = false)
-    private Polygon geo;
-    @Column(name = "bas", nullable = false)
-    private LineString bas;
-    @Column(name = "Haut", nullable = false)
-    private LineString haut;
+    @JoinColumn(name = "id_salle_h", nullable = false)
+    private Salle salle_h;
+    @Column(name = "geom", nullable = false)
+    private Polygon geom;
+    @Column(name = "sortie_b", nullable = false)
+    private LineString sortie_b;
+    @Column(name = "sortie_h", nullable = false)
+    private LineString sortie_h;
 
     public Escalier() { }
 
-    public Escalier(Etage etage_bas, Etage etage_haut, Salle salle_bas, Salle salle_haut, Polygon geo, LineString bas, LineString haut) {
-        this.etage_bas = etage_bas;
-        this.etage_haut = etage_haut;
-        this.salle_bas = salle_bas;
-        this.salle_haut = salle_haut;
-        this.geo = geo;
-        this.bas = bas;
-        this.bas = haut;
+    public Escalier(Etage etage_b, Etage etage_h, Salle salle_b, Salle salle_h, Polygon geom, LineString sortie_b, LineString sortie_h) {
+        this.etage_b = etage_b;
+        this.etage_h = etage_h;
+        this.salle_b = salle_b;
+        this.salle_h = salle_h;
+        this.geom = geom;
+        this.sortie_b = sortie_b;
+        this.sortie_b = sortie_h;
     }
 
     public int getId() {
         return id;
     }
 
-    public Etage getEtage_bas() {
-        return etage_bas;
+    public Etage getEtage_b() {
+        return etage_b;
     }
 
-    public void setEtage_bas(Etage etage_bas) {
-        this.etage_bas = etage_bas;
+    public void setEtage_b(Etage etage_bas) {
+        this.etage_b = etage_bas;
     }
 
-    public Etage getEtage_haut() {
-        return etage_haut;
+    public Etage getEtage_h() {
+        return etage_h;
     }
 
-    public void setEtage_haut(Etage etage_haut) {
-        this.etage_haut = etage_haut;
+    public void setEtage_h(Etage etage_haut) {
+        this.etage_h = etage_haut;
     }
 
-    public Salle getSalle_bas() {
-        return salle_bas;
+    public Salle getSalle_b() {
+        return salle_b;
     }
 
-    public void setSalle_bas(Salle salle_bas) {
-        this.salle_bas = salle_bas;
+    public void setSalle_b(Salle salle_bas) {
+        this.salle_b = salle_bas;
     }
 
-    public Salle getSalle_haut() {
-        return salle_haut;
+    public Salle getSalle_h() {
+        return salle_h;
     }
 
-    public void setSalle_haut(Salle haut) {
-        this.salle_haut = haut;
+    public void setSalle_h(Salle haut) {
+        this.salle_h = haut;
     }
 
-    public Polygon getGeo() {
-        return geo;
+    public Polygon getGeom() {
+        return geom;
     }
 
-    public void setGeo(Polygon geo) {
-        this.geo = geo;
+    public void setGeom(Polygon geo) {
+        this.geom = geo;
     }
 
-    public LineString getBas() {
-        return bas;
+    public LineString getSortie_b() {
+        return sortie_b;
     }
 
-    public void setBas(LineString bas) {
-        this.bas = bas;
+    public void setSortie_b(LineString bas) {
+        this.sortie_b = bas;
     }
 
-    public LineString getHaut() {
-        return haut;
+    public LineString getSortie_h() {
+        return sortie_h;
     }
 
-    public void setHaut(LineString haut) {
-        this.haut = haut;
+    public void setSortie_h(LineString haut) {
+        this.sortie_h = haut;
     }
 
 }

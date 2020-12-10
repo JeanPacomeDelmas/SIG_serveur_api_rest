@@ -1,5 +1,7 @@
 package fr.univ.orleans.sig.server_api_rest.controllers;
 
+import fr.univ.orleans.sig.server_api_rest.dtos.FonctionSalleDTO;
+import fr.univ.orleans.sig.server_api_rest.dtos.SalleDTO;
 import fr.univ.orleans.sig.server_api_rest.entities.*;
 import fr.univ.orleans.sig.server_api_rest.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -26,12 +30,18 @@ public class Controller {
     @Autowired
     private PorteRepository porteRepository;
 
+//    private ArrayList<Salle> salles = new ArrayList<>();
+
     @GetMapping(value = "/fonction_salles")
-    public ResponseEntity<Collection<FonctionSalle>> findAllFonctionSalles() {
-        return ResponseEntity.ok(fonctionSalleRepository.findAll());
+    public ResponseEntity<Collection<FonctionSalleDTO>> findAllFonctionSalles() {
+        Collection<FonctionSalleDTO> fonctionSalleDTOS = new ArrayList<>();
+        for (FonctionSalle salle : fonctionSalleRepository.findAll()) {
+            fonctionSalleDTOS.add(FonctionSalleDTO.createFonctionSalleDTO(salle));
+        }
+        return ResponseEntity.ok(fonctionSalleDTOS);
     }
 
-    @GetMapping(value = "/fonction_salles/{id}")
+    @GetMapping(value = "/fonction_salle/{id}")
     public ResponseEntity<FonctionSalle> findFonctionSalleById(@PathVariable int id) {
         return fonctionSalleRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -62,9 +72,16 @@ public class Controller {
     }
 
     @GetMapping(value = "/salle/{id}")
-    public ResponseEntity<Salle> findSalleById(@PathVariable int id) {
-        return salleRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<SalleDTO> findSalleById(@PathVariable int id) {
+        return salleRepository.findById(id).map(value -> ResponseEntity.ok(SalleDTO.createSalleDTO(value))).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+//    @GetMapping(value = "/salle/{id}")
+//    public void findSalleById(@PathVariable int id) {
+//        Optional<Salle> salle = salleRepository.findById(id);
+//        salles.add(salle.get());
+//        Polygon geom = salles.get(0).getGeo();
+//    }
 
     @GetMapping(value = "/escaliers")
     public ResponseEntity<Collection<Escalier>> findAllEscaliers() {

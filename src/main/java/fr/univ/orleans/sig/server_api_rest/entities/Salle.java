@@ -1,6 +1,5 @@
 package fr.univ.orleans.sig.server_api_rest.entities;
 
-
 import org.locationtech.jts.geom.Polygon;
 
 import javax.persistence.*;
@@ -11,38 +10,40 @@ public class Salle {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
-    @Column(name = "geo", nullable = false)
-    private Polygon geo;
+    @Column(name = "gid")
+    private int gid;
+//    @JsonSerialize(using = GeometrySerializer.class)
+//    @JsonDeserialize(contentUsing = GeometryDeserializer.class)
+    @Column(name = "geom", nullable = false)
+    private Polygon geom;
     @ManyToOne
     @JoinColumn(name = "id_etage", nullable = false)
     private Etage etage;
-    @Column(name = "numero", nullable = false)
+    @Column(name = "numero"/*, nullable = false*/)
     private int numero;
     @ManyToOne
-    @JoinColumn(name = "id_fonction", nullable = false)
+    @JoinColumn(name = "id_fonctio", nullable = false)
     private FonctionSalle fonction;
 
     public Salle() { }
 
-    public Salle(Polygon geo, Etage etage, int numero, FonctionSalle fonction) {
-        this.geo = geo;
+    public Salle(Polygon geom, Etage etage, int numero, FonctionSalle fonction) {
+        this.geom = geom;
         this.etage = etage;
         this.numero = numero;
         this.fonction = fonction;
     }
 
-    public int getId() {
-        return id;
+    public int getGid() {
+        return gid;
     }
 
-    public Polygon getGeo() {
-        return geo;
+    public Polygon getGeom() {
+        return geom;
     }
 
-    public void setGeo(Polygon geo) {
-        this.geo = geo;
+    public void setGeom(Polygon geo) {
+        this.geom = geo;
     }
 
     public Etage getEtage() {
