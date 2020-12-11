@@ -1,8 +1,6 @@
 package fr.univ.orleans.sig.server_api_rest.controllers;
 
-import fr.univ.orleans.sig.server_api_rest.dtos.FonctionSalleDTO;
-import fr.univ.orleans.sig.server_api_rest.dtos.SalleDTO;
-import fr.univ.orleans.sig.server_api_rest.entities.*;
+import fr.univ.orleans.sig.server_api_rest.dtos.*;
 import fr.univ.orleans.sig.server_api_rest.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -34,41 +31,37 @@ public class Controller {
 
     @GetMapping(value = "/fonction_salles")
     public ResponseEntity<Collection<FonctionSalleDTO>> findAllFonctionSalles() {
-        Collection<FonctionSalleDTO> fonctionSalleDTOS = new ArrayList<>();
-        for (FonctionSalle salle : fonctionSalleRepository.findAll()) {
-            fonctionSalleDTOS.add(FonctionSalleDTO.createFonctionSalleDTO(salle));
-        }
-        return ResponseEntity.ok(fonctionSalleDTOS);
+        return ResponseEntity.ok(fonctionSalleRepository.findAll().stream().map(FonctionSalleDTO::createFonctionSalleDTO).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/fonction_salle/{id}")
-    public ResponseEntity<FonctionSalle> findFonctionSalleById(@PathVariable int id) {
-        return fonctionSalleRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<FonctionSalleDTO> findFonctionSalleById(@PathVariable int id) {
+        return fonctionSalleRepository.findById(id).map(value -> ResponseEntity.ok(FonctionSalleDTO.createFonctionSalleDTO(value))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping(value = "/etages")
-    public ResponseEntity<Collection<Etage>> findAllEtages() {
-        return ResponseEntity.ok(etageRepository.findAll());
+    public ResponseEntity<Collection<EtageDTO>> findAllEtages() {
+        return ResponseEntity.ok(etageRepository.findAll().stream().map(EtageDTO::createEtageDTO).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/etage/{id}")
-    public ResponseEntity<Etage> findEtageById(@PathVariable int id) {
-        return etageRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<EtageDTO> findEtageById(@PathVariable int id) {
+        return etageRepository.findById(id).map(value -> ResponseEntity.ok(EtageDTO.createEtageDTO(value))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping(value = "/portes")
-    public ResponseEntity<Collection<Porte>> findAllPortes() {
-        return ResponseEntity.ok(porteRepository.findAll());
+    public ResponseEntity<Collection<PorteDTO>> findAllPortes() {
+        return ResponseEntity.ok(porteRepository.findAll().stream().map(PorteDTO::createPorteDTO).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/porte/{id}")
-    public ResponseEntity<Porte> findPorteById(@PathVariable int id) {
-        return porteRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<PorteDTO> findPorteById(@PathVariable int id) {
+        return porteRepository.findById(id).map(value -> ResponseEntity.ok(PorteDTO.createPorteDTO(value))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping(value = "/salles")
-    public ResponseEntity<Collection<Salle>> findAllSalles() {
-        return ResponseEntity.ok(salleRepository.findAll());
+    public ResponseEntity<Collection<SalleDTO>> findAllSalles() {
+        return ResponseEntity.ok(salleRepository.findAll().stream().map(SalleDTO::createSalleDTO).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/salle/{id}")
@@ -84,15 +77,13 @@ public class Controller {
 //    }
 
     @GetMapping(value = "/escaliers")
-    public ResponseEntity<Collection<Escalier>> findAllEscaliers() {
-        return ResponseEntity.ok(escalierRepository.findAll());
+    public ResponseEntity<Collection<EscalierDTO>> findAllEscaliers() {
+        return ResponseEntity.ok(escalierRepository.findAll().stream().map(EscalierDTO::createEscalierDTO).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/escalier/{id}")
-    public ResponseEntity<Escalier> findEscalierById(@PathVariable int id) {
-        return escalierRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<EscalierDTO> findEscalierById(@PathVariable int id) {
+        return escalierRepository.findById(id).map(value -> ResponseEntity.ok(EscalierDTO.createEscalierDTO(value))).orElseGet(() -> ResponseEntity.notFound().build());
     }
-
-
 
 }
