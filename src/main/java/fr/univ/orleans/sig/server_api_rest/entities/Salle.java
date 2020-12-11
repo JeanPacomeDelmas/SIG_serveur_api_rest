@@ -12,8 +12,6 @@ public class Salle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "gid")
     private int gid;
-//    @JsonSerialize(using = GeometrySerializer.class)
-//    @JsonDeserialize(contentUsing = GeometryDeserializer.class)
     @Column(name = "geom", nullable = false)
     private Polygon geom;
     @ManyToOne

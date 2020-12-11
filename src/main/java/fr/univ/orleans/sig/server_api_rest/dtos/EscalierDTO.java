@@ -1,99 +1,98 @@
 package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.Escalier;
-import fr.univ.orleans.sig.server_api_rest.entities.Etage;
-import fr.univ.orleans.sig.server_api_rest.entities.Salle;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Polygon;
+import fr.univ.orleans.sig.server_api_rest.services.GenericService;
+
+import java.util.*;
 
 public class EscalierDTO {
 
-//    private int id;
-    private Etage etage_b;
-    private Etage etage_h;
-    private Salle salle_b;
-    private Salle salle_h;
-    private Polygon geom;
-    private LineString sortie_b;
-    private LineString sortie_h;
+    private final int id;
+    private EtageDTO etageB;
+    private EtageDTO etageH;
+    private SalleDTO salleB;
+    private SalleDTO salleH;
+    private Map<String, Object> geometry;
+    private Map<String, Object> sortieB;
+    private Map<String, Object> sortieH;
 
-    public static EscalierDTO createEscalierDTO(Escalier escalier) {
-        return new EscalierDTO(/*escalier.getId(), */escalier.getEtage_b(), escalier.getEtage_h(), escalier.getSalle_b(), escalier.getSalle_h(), escalier.getGeom(), escalier.getSortie_b(), escalier.getSortie_h());
+    public static EscalierDTO create(Escalier escalier) {
+        return new EscalierDTO(escalier.getGid(), EtageDTO.create(escalier.getEtageB()),
+                EtageDTO.create(escalier.getEtageH()), SalleDTO.create(escalier.getSalleB()),
+                SalleDTO.create(escalier.getSalleH()), GenericService.polygonDTO(escalier.getGeom()),
+                GenericService.lineStringDTO(escalier.getSortieB()), GenericService.lineStringDTO(escalier.getSortieH()));
     }
 
-    private EscalierDTO(/*int id, */Etage etage_b, Etage etage_h, Salle salle_b, Salle salle_h, Polygon geom, LineString sortie_b, LineString sortie_H) {
-//        this.id = id;
-        this.etage_b = etage_b;
-        this.etage_h = etage_h;
-        this.salle_b = salle_b;
-        this.salle_h = salle_h;
-        this.geom = geom;
-        this.sortie_b = sortie_b;
-        this.sortie_h = sortie_H;
+    private EscalierDTO(int id, EtageDTO etageB, EtageDTO etageH, SalleDTO salleB, SalleDTO salleH,
+                        Map<String, Object> geom, Map<String, Object> sortieB, Map<String, Object> sortieH) {
+        this.id = id;
+        this.etageB = etageB;
+        this.etageH = etageH;
+        this.salleB = salleB;
+        this.salleH = salleH;
+        this.geometry = geom;
+        this.sortieB = sortieB;
+        this.sortieH = sortieH;
     }
 
-//    public int getId() {
-//        return id;
-//    }
-
-//    public void setId(int id) {
-//        this.id = id;
-//    }
-
-    public Etage getEtage_b() {
-        return etage_b;
+    public int getId() {
+        return id;
     }
 
-    public void setEtage_b(Etage etage_b) {
-        this.etage_b = etage_b;
+    public EtageDTO getEtageB() {
+        return etageB;
     }
 
-    public Etage getEtage_h() {
-        return etage_h;
+    public void setEtageB(EtageDTO etageB) {
+        this.etageB = etageB;
     }
 
-    public void setEtage_h(Etage etage_h) {
-        this.etage_h = etage_h;
+    public EtageDTO getEtageH() {
+        return etageH;
     }
 
-    public Salle getSalle_b() {
-        return salle_b;
+    public void setEtageH(EtageDTO etageH) {
+        this.etageH = etageH;
     }
 
-    public void setSalle_b(Salle salle_b) {
-        this.salle_b = salle_b;
+    public SalleDTO getSalleB() {
+        return salleB;
     }
 
-    public Salle getSalle_h() {
-        return salle_h;
+    public void setSalleB(SalleDTO salleB) {
+        this.salleB = salleB;
     }
 
-    public void setSalle_h(Salle salle_h) {
-        this.salle_h = salle_h;
+    public SalleDTO getSalleH() {
+        return salleH;
     }
 
-    public Polygon getGeom() {
-        return geom;
+    public void setSalleH(SalleDTO salleH) {
+        this.salleH = salleH;
     }
 
-    public void setGeom(Polygon geom) {
-        this.geom = geom;
+    public Map<String, Object> getGeometry() {
+        return geometry;
     }
 
-    public LineString getSortie_b() {
-        return sortie_b;
+    public void setGeometry(Map<String, Object> geom) {
+        this.geometry = geom;
     }
 
-    public void setSortie_b(LineString sortie_b) {
-        this.sortie_b = sortie_b;
+    public Map<String, Object> getSortieB() {
+        return sortieB;
     }
 
-    public LineString getSortie_h() {
-        return sortie_h;
+    public void setSortieB(Map<String, Object> sortieB) {
+        this.sortieB = sortieB;
     }
 
-    public void setSortie_h(LineString sortie_h) {
-        this.sortie_h = sortie_h;
+    public Map<String, Object> getSortieH() {
+        return sortieH;
+    }
+
+    public void setSortieH(Map<String, Object> sortieH) {
+        this.sortieH = sortieH;
     }
 
 }

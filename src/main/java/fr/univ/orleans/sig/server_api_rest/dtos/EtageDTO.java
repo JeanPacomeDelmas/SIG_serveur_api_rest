@@ -4,21 +4,21 @@ import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 
 public class EtageDTO {
 
-//    private int gid;
+    private final int id;
     private String nom;
 
-    public static EtageDTO createEtageDTO(Etage etage) {
-        return new EtageDTO(/*etage.getId(), */etage.getNom());
+    public static EtageDTO create(Etage etage) {
+        return new EtageDTO(etage.getGid(), etage.getNom());
     }
 
-    private EtageDTO(/*int id, */String nom) {
-//        this.gid = id;
+    private EtageDTO(int id, String nom) {
+        this.id = id;
         this.nom = nom;
     }
 
-//    public int getGid() {
-//        return id;
-//    }
+    public int getId() {
+        return id;
+    }
 
     public String getNom() {
         return nom;

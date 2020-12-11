@@ -12,72 +12,72 @@ public class Escalier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "gid")
-    private int id;
+    private int gid;
     @OneToOne
     @JoinColumn(name = "id_etage_b", nullable = false)
-    private Etage etage_b;
+    private Etage etageB;
     @OneToOne
     @JoinColumn(name = "id_etage_h", nullable = false)
-    private Etage etage_h;
+    private Etage etageH;
     @OneToOne
     @JoinColumn(name = "id_salle_b", nullable = false)
-    private Salle salle_b;
+    private Salle salleB;
     @OneToOne
     @JoinColumn(name = "id_salle_h", nullable = false)
-    private Salle salle_h;
+    private Salle salleH;
     @Column(name = "geom", nullable = false)
     private Polygon geom;
     @Column(name = "sortie_b", nullable = false)
-    private LineString sortie_b;
+    private LineString sortieB;
     @Column(name = "sortie_h", nullable = false)
-    private LineString sortie_h;
+    private LineString sortieH;
 
-    public Escalier() { }
+    public Escalier() {}
 
-    public Escalier(Etage etage_b, Etage etage_h, Salle salle_b, Salle salle_h, Polygon geom, LineString sortie_b, LineString sortie_h) {
-        this.etage_b = etage_b;
-        this.etage_h = etage_h;
-        this.salle_b = salle_b;
-        this.salle_h = salle_h;
+    public Escalier(Etage etageB, Etage etageH, Salle salleB, Salle salleH, Polygon geom, LineString sortieB, LineString sortieH) {
+        this.etageB = etageB;
+        this.etageH = etageH;
+        this.salleB = salleB;
+        this.salleH = salleH;
         this.geom = geom;
-        this.sortie_b = sortie_b;
-        this.sortie_b = sortie_h;
+        this.sortieB = sortieB;
+        this.sortieB = sortieH;
     }
 
-    public int getId() {
-        return id;
+    public int getGid() {
+        return gid;
     }
 
-    public Etage getEtage_b() {
-        return etage_b;
+    public Etage getEtageB() {
+        return etageB;
     }
 
-    public void setEtage_b(Etage etage_bas) {
-        this.etage_b = etage_bas;
+    public void setEtageB(Etage etage_bas) {
+        this.etageB = etage_bas;
     }
 
-    public Etage getEtage_h() {
-        return etage_h;
+    public Etage getEtageH() {
+        return etageH;
     }
 
-    public void setEtage_h(Etage etage_haut) {
-        this.etage_h = etage_haut;
+    public void setEtageH(Etage etage_haut) {
+        this.etageH = etage_haut;
     }
 
-    public Salle getSalle_b() {
-        return salle_b;
+    public Salle getSalleB() {
+        return salleB;
     }
 
-    public void setSalle_b(Salle salle_bas) {
-        this.salle_b = salle_bas;
+    public void setSalleB(Salle salle_bas) {
+        this.salleB = salle_bas;
     }
 
-    public Salle getSalle_h() {
-        return salle_h;
+    public Salle getSalleH() {
+        return salleH;
     }
 
-    public void setSalle_h(Salle haut) {
-        this.salle_h = haut;
+    public void setSalleH(Salle haut) {
+        this.salleH = haut;
     }
 
     public Polygon getGeom() {
@@ -88,20 +88,20 @@ public class Escalier {
         this.geom = geo;
     }
 
-    public LineString getSortie_b() {
-        return sortie_b;
+    public LineString getSortieB() {
+        return sortieB;
     }
 
-    public void setSortie_b(LineString bas) {
-        this.sortie_b = bas;
+    public void setSortieB(LineString bas) {
+        this.sortieB = bas;
     }
 
-    public LineString getSortie_h() {
-        return sortie_h;
+    public LineString getSortieH() {
+        return sortieH;
     }
 
-    public void setSortie_h(LineString haut) {
-        this.sortie_h = haut;
+    public void setSortieH(LineString haut) {
+        this.sortieH = haut;
     }
 
 }

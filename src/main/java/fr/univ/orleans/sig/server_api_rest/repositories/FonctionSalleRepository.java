@@ -7,4 +7,6 @@ public interface FonctionSalleRepository extends JpaRepository<FonctionSalle, In
 
     boolean existsByNom(String nom);
 
+    FonctionSalle findByNom(String nom);
+
 }

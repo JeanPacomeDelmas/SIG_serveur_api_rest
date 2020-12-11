@@ -1,33 +1,48 @@
 package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
+import fr.univ.orleans.sig.server_api_rest.services.GenericService;
+import org.locationtech.jts.geom.Coordinate;
+
+import java.util.*;
 
 public class SalleDTO {
 
-//    private int gid;
-    private String geom;
+    private final int id;
+    private final String type;
+    private Map<String, Object> geometry;
     private EtageDTO etage;
     private int numero;
     private FonctionSalleDTO fonction;
 
-    public static SalleDTO createSalleDTO(Salle salle) {
-        return new SalleDTO(/*salle.getGid(), */salle.getGeom().toString(), EtageDTO.createEtageDTO(salle.getEtage()), salle.getNumero(), FonctionSalleDTO.createFonctionSalleDTO(salle.getFonction()));
+    public static SalleDTO create(Salle salle) {
+        return new SalleDTO(salle.getGid(), GenericService.polygonDTO(salle.getGeom()),
+                EtageDTO.create(salle.getEtage()), salle.getNumero(), FonctionSalleDTO.create(salle.getFonction()));
     }
 
-    private SalleDTO(/*int id, */String geom, EtageDTO etage, int numero, FonctionSalleDTO fonction) {
-//        this.gid = id;
-        this.geom = geom;
+    private SalleDTO(int id, Map<String, Object> geometry, EtageDTO etage, int numero, FonctionSalleDTO fonction) {
+        this.id = id;
+        this.type = "Feature";
+        this.geometry = geometry;
         this.etage = etage;
         this.numero = numero;
         this.fonction = fonction;
     }
 
-    public String getGeom() {
-        return geom;
+    public int getId() {
+        return id;
     }
 
-    public void setGeom(String geom) {
-        this.geom = geom;
+    public String getType() {
+        return type;
+    }
+
+    public Map<String, Object> getGeometry() {
+        return geometry;
+    }
+
+    public void setGeometry(Map<String, Object> geometry) {
+        this.geometry = geometry;
     }
 
     public EtageDTO getEtage() {
