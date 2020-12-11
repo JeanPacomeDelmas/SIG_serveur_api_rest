@@ -1,8 +1,7 @@
 package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
-import fr.univ.orleans.sig.server_api_rest.services.GenericService;
-import org.locationtech.jts.geom.Coordinate;
+import fr.univ.orleans.sig.server_api_rest.services.SuperService;
 
 import java.util.*;
 
@@ -16,7 +15,7 @@ public class SalleDTO {
     private FonctionSalleDTO fonction;
 
     public static SalleDTO create(Salle salle) {
-        return new SalleDTO(salle.getGid(), GenericService.polygonDTO(salle.getGeom()),
+        return new SalleDTO(salle.getGid(), SuperService.polygonToPolygonDTO(salle.getGeom()),
                 EtageDTO.create(salle.getEtage()), salle.getNumero(), FonctionSalleDTO.create(salle.getFonction()));
     }
 

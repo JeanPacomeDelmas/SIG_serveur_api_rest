@@ -2,9 +2,12 @@ package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 
+import javax.validation.constraints.NotBlank;
+
 public class EtageDTO {
 
     private final int id;
+    @NotBlank
     private String nom;
 
     public static EtageDTO create(Etage etage) {

@@ -1,14 +1,17 @@
 package fr.univ.orleans.sig.server_api_rest.services;
 
+import fr.univ.orleans.sig.server_api_rest.dtos.SalleDTO;
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
 import fr.univ.orleans.sig.server_api_rest.repositories.SalleRepository;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
 @Service
-public class SalleService implements GenericService<Salle> {
+public class SalleService extends SuperService implements GenericService<Salle> {
 
     @Autowired
     private SalleRepository salleRepository;
@@ -44,6 +47,11 @@ public class SalleService implements GenericService<Salle> {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Salle salleDTOToSalle(SalleDTO salleDTO) throws ParseException {
+        return super.salleDTOToSalle(salleDTO);
     }
 
 }

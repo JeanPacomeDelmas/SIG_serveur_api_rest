@@ -1,49 +1,14 @@
 package fr.univ.orleans.sig.server_api_rest.services;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.WKTReader;
-
 import java.util.*;
 
-public interface GenericService<T> {
+public interface GenericService<E> {
 
-    static Geometry wktToGeometry(String wellKnownText) throws ParseException {
-        return new WKTReader().read(wellKnownText);
-    }
-
-    static Map<String, Object> polygonDTO(Polygon polygon) {
-        ArrayList<ArrayList<Double>> coordinates = new ArrayList<>();
-        for (Coordinate coordinate : polygon.getCoordinates()) {
-            ArrayList<Double> coords = new ArrayList<>(Arrays.asList(coordinate.x, coordinate.y));
-            coordinates.add(coords);
-        }
-        return new HashMap<>() {{
-            put("type", "Polygon");
-            put("coordinates", new ArrayList<>(Collections.singletonList(coordinates)));
-        }};
-    }
-
-    static Map<String, Object> lineStringDTO(LineString lineString) {
-        ArrayList<Double> coordinates = new ArrayList<>();
-        for (Coordinate coordinate : lineString.getCoordinates()) {
-            coordinates.add(coordinate.x);
-            coordinates.add(coordinate.y);
-        }
-        return new HashMap<>() {{
-            put("type", "LineString");
-            put("coordinates", new ArrayList<>(Collections.singletonList(coordinates)));
-        }};
-    }
-
-    Collection<T> findAll();
-    T findById(int id);
-    T save(T entity);
-    T update(T entity);
-    boolean delete(T entity);
+    Collection<E> findAll();
+    E findById(int id);
+    E save(E entity);
+    E update(E entity);
+    boolean delete(E entity);
 
 }
 

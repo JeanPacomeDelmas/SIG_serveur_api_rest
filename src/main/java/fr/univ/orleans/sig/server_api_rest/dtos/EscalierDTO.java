@@ -1,7 +1,7 @@
 package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.Escalier;
-import fr.univ.orleans.sig.server_api_rest.services.GenericService;
+import fr.univ.orleans.sig.server_api_rest.services.SuperService;
 
 import java.util.*;
 
@@ -19,8 +19,8 @@ public class EscalierDTO {
     public static EscalierDTO create(Escalier escalier) {
         return new EscalierDTO(escalier.getGid(), EtageDTO.create(escalier.getEtageB()),
                 EtageDTO.create(escalier.getEtageH()), SalleDTO.create(escalier.getSalleB()),
-                SalleDTO.create(escalier.getSalleH()), GenericService.polygonDTO(escalier.getGeom()),
-                GenericService.lineStringDTO(escalier.getSortieB()), GenericService.lineStringDTO(escalier.getSortieH()));
+                SalleDTO.create(escalier.getSalleH()), SuperService.polygonToPolygonDTO(escalier.getGeom()),
+                SuperService.lineStringToLineStringDTO(escalier.getSortieB()), SuperService.lineStringToLineStringDTO(escalier.getSortieH()));
     }
 
     private EscalierDTO(int id, EtageDTO etageB, EtageDTO etageH, SalleDTO salleB, SalleDTO salleH,

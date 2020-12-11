@@ -1,6 +1,5 @@
 package fr.univ.orleans.sig.server_api_rest.services;
 
-import fr.univ.orleans.sig.server_api_rest.dtos.FonctionSalleDTO;
 import fr.univ.orleans.sig.server_api_rest.entities.FonctionSalle;
 import fr.univ.orleans.sig.server_api_rest.repositories.FonctionSalleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +23,8 @@ public class FonctionSalleService implements GenericService<FonctionSalle> {
         return fonctionSalleRepository.findById(id).orElse(null);
     }
 
-    public boolean noConfict(FonctionSalleDTO fonctionSalleDTO) {
-        return false;
+    public boolean conflict(String nom) {
+        return fonctionSalleRepository.existsByNom(nom);
     }
 
     @Override
@@ -37,11 +36,17 @@ public class FonctionSalleService implements GenericService<FonctionSalle> {
 
     @Override
     public FonctionSalle update(FonctionSalle entity) {
+        if (entity != null)
+            return fonctionSalleRepository.save(entity);
         return null;
     }
 
     @Override
     public boolean delete(FonctionSalle entity) {
+        if (entity != null) {
+            fonctionSalleRepository.delete(entity);
+            return true;
+        }
         return false;
     }
 

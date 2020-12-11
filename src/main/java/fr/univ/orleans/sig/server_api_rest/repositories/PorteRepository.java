@@ -9,4 +9,6 @@ public interface PorteRepository extends JpaRepository<Porte, Integer> {
 
     boolean existsBySalle1AndSalle2AndGeom(Salle salle1, Salle salle2, LineString geom);
 
+    Porte findBySalle1AndSalle2AndGeom(Salle salle1, Salle salle2, LineString geom);
+
 }

@@ -1,0 +1,25 @@
+POST http://localhost:8081/api/fonction_salle
+Content-Type: application/json
+
+//{"id": 1, "nom": "test2"}
+{"nom": "test"}
+
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 201, "Response status is not 201");
+});
+%}
+
+###
+PATCH http://localhost:8081/api/fonction_salle/1
+Content-Type: application/json
+
+{}
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+});
+%}
+

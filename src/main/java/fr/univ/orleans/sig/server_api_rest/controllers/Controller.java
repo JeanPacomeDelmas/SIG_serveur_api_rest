@@ -5,9 +5,7 @@ import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 import fr.univ.orleans.sig.server_api_rest.entities.FonctionSalle;
 import fr.univ.orleans.sig.server_api_rest.entities.Porte;
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
-import fr.univ.orleans.sig.server_api_rest.repositories.*;
-import fr.univ.orleans.sig.server_api_rest.services.GenericService;
-import org.locationtech.jts.geom.Coordinate;
+import fr.univ.orleans.sig.server_api_rest.services.*;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
@@ -18,24 +16,26 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "http://localhost:1234/")
 @RestController
 @RequestMapping("/api")
 public class Controller {
 
     @Autowired
-    private FonctionSalleRepository fonctionSalleRepository;
+    private FonctionSalleService fonctionSalleService;
     @Autowired
-    private EtageRepository etageRepository;
+    private EtageService etageService;
     @Autowired
-    private EscalierRepository escalierRepository;
+    private EscalierService escalierService;
     @Autowired
-    private SalleRepository salleRepository;
+    private SalleService salleService;
     @Autowired
-    private PorteRepository porteRepository;
+    private PorteService porteService;
 
     //////////////////////////////////////////////////////////////
     //////////////////// FONCTION_SALLE //////////////////////////
@@ -43,20 +43,26 @@ public class Controller {
 
     @GetMapping(value = "/fonction_salles")
     public ResponseEntity<Collection<FonctionSalleDTO>> findAllFonctionSalles() {
-        return ResponseEntity.ok(fonctionSalleRepository.findAll().stream().map(FonctionSalleDTO::create).collect(Collectors.toList()));
+        FonctionSalle fonctionSalle = new FonctionSalle(null);
+        return ResponseEntity.ok(
+                fonctionSalleService.findAll().stream().map(FonctionSalleDTO::create).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/fonction_salle/{id}")
     public ResponseEntity<FonctionSalleDTO> findFonctionSalleById(@PathVariable int id) {
-        return fonctionSalleRepository.findById(id).map(value -> ResponseEntity.ok(FonctionSalleDTO.create(value))).orElseGet(() -> ResponseEntity.notFound().build());
+        FonctionSalle fonctionSalle = fonctionSalleService.findById(id);
+        if (fonctionSalle != null) {
+            return ResponseEntity.ok(FonctionSalleDTO.create(fonctionSalle));
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping(value = "/fonction_salle", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FonctionSalleDTO> saveFonctionSalle(@RequestBody FonctionSalleDTO fonctionSalleDTO) {
-        if (fonctionSalleRepository.existsByNom(fonctionSalleDTO.getNom())) {
+    public ResponseEntity<FonctionSalleDTO> saveFonctionSalle(@Valid @RequestBody FonctionSalleDTO fonctionSalleDTO) {
+        if (fonctionSalleService.conflict(fonctionSalleDTO.getNom())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
-        FonctionSalle fonctionSalle = fonctionSalleRepository.save(new FonctionSalle(fonctionSalleDTO.getNom()));
+        FonctionSalle fonctionSalle = fonctionSalleService.save(new FonctionSalle(fonctionSalleDTO.getNom()));
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
                 .buildAndExpand(fonctionSalle.getGid()).toUri();
@@ -64,19 +70,19 @@ public class Controller {
     }
 
     @PatchMapping(value = "fonction_salle/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FonctionSalleDTO> updateFonctionSalle(@PathVariable int id, @RequestBody FonctionSalleDTO fonctionSalleDTO) {
-        Optional<FonctionSalle> fonctionSalle = fonctionSalleRepository.findById(id);
-        if (fonctionSalle.isPresent()) {
-            fonctionSalle.get().setNom(fonctionSalleDTO.getNom());
-            return ResponseEntity.ok(FonctionSalleDTO.create(fonctionSalleRepository.save(fonctionSalle.get())));
+    public ResponseEntity<FonctionSalleDTO> updateFonctionSalle(@PathVariable int id, @Valid @RequestBody FonctionSalleDTO fonctionSalleDTO) {
+        FonctionSalle fonctionSalle = fonctionSalleService.findById(id);
+        if (fonctionSalle != null) {
+            fonctionSalle.setNom(fonctionSalleDTO.getNom());
+            return ResponseEntity.ok(FonctionSalleDTO.create(fonctionSalleService.update(fonctionSalle)));
         }
         return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping(value = "fonction_salle/{id}")
     public ResponseEntity<?> deleteFonctionSalle(@PathVariable int id) {
-        Optional<FonctionSalle> fonctionSalle = fonctionSalleRepository.findById(id);
-        if (fonctionSalle.isPresent()) {
+        FonctionSalle fonctionSalle = fonctionSalleService.findById(id);
+        if (fonctionSalle != null && fonctionSalleService.delete(fonctionSalle)) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
@@ -88,17 +94,21 @@ public class Controller {
 
     @GetMapping(value = "/etages")
     public ResponseEntity<Collection<EtageDTO>> findAllEtages() {
-        return ResponseEntity.ok(etageRepository.findAll().stream().map(EtageDTO::create).collect(Collectors.toList()));
+        return ResponseEntity.ok(etageService.findAll().stream().map(EtageDTO::create).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/etage/{id}")
     public ResponseEntity<EtageDTO> findEtageById(@PathVariable int id) {
-        return etageRepository.findById(id).map(value -> ResponseEntity.ok(EtageDTO.create(value))).orElseGet(() -> ResponseEntity.notFound().build());
+        Etage etage = etageService.findById(id);
+        if (etage != null) {
+            return ResponseEntity.ok(EtageDTO.create(etage));
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping(value = "/etage", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EtageDTO> saveEtage(@RequestBody EtageDTO etageDTO) {
-        Etage etage = etageRepository.save(new Etage(etageDTO.getNom()));
+    public ResponseEntity<EtageDTO> saveEtage(@Valid @RequestBody EtageDTO etageDTO) {
+        Etage etage = etageService.save(new Etage(etageDTO.getNom()));
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
                 .buildAndExpand(etage.getGid()).toUri();
@@ -106,19 +116,19 @@ public class Controller {
     }
 
     @PatchMapping(value = "etage/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EtageDTO> updateEtage(@PathVariable int id, @RequestBody EtageDTO etageDTO) {
-        Optional<Etage> etage = etageRepository.findById(id);
-        if (etage.isPresent()) {
-            etage.get().setNom(etageDTO.getNom());
-            return ResponseEntity.ok(EtageDTO.create(etageRepository.save(etage.get())));
+    public ResponseEntity<EtageDTO> updateEtage(@PathVariable int id, @Valid @RequestBody EtageDTO etageDTO) {
+        Etage etage = etageService.findById(id);
+        if (etage != null) {
+            etage.setNom(etageDTO.getNom());
+            return ResponseEntity.ok(EtageDTO.create(etageService.update(etage)));
         }
         return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping(value = "etage/{id}")
     public ResponseEntity<?> deleteEtage(@PathVariable int id) {
-        Optional<Etage> etage = etageRepository.findById(id);
-        if (etage.isPresent()) {
+        Etage etage = etageService.findById(id);
+        if (etage != null && etageService.delete(etage)) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
@@ -130,60 +140,44 @@ public class Controller {
 
     @GetMapping(value = "/portes")
     public ResponseEntity<Collection<PorteDTO>> findAllPortes() {
-        return ResponseEntity.ok(porteRepository.findAll().stream().map(PorteDTO::create).collect(Collectors.toList()));
+        return ResponseEntity.ok(porteService.findAll().stream().map(PorteDTO::create).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/porte/{id}")
     public ResponseEntity<PorteDTO> findPorteById(@PathVariable int id) {
-        return porteRepository.findById(id).map(value -> ResponseEntity.ok(PorteDTO.create(value))).orElseGet(() ->
-                ResponseEntity.notFound().build());
+        Porte porte = porteService.findById(id);
+        if (porte != null) {
+            return ResponseEntity.ok(PorteDTO.create(porte));
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping(value = "/porte", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PorteDTO> savePorte(@RequestBody PorteDTO porteDTO) {
-//        try {
-//            Salle salle1 = salleRepository.findByGeomAndEtageAndNumeroAndFonction(
-//                    (Polygon) GenericService.wktToGeometry(porteDTO.getSalle1().getGeometry()),
-//                    etageRepository.findByNom(porteDTO.getSalle1().getEtage().getNom()),
-//                    porteDTO.getSalle1().getNumero(),
-//                    fonctionSalleRepository.findByNom(porteDTO.getSalle1().getFonction().getNom()));
-//            Salle salle2 = salleRepository.findByGeomAndEtageAndNumeroAndFonction(
-//                    (Polygon) GenericService.wktToGeometry(porteDTO.getSalle2().getGeometry()),
-//                    etageRepository.findByNom(porteDTO.getSalle2().getEtage().getNom()),
-//                    porteDTO.getSalle2().getNumero(),
-//                    fonctionSalleRepository.findByNom(porteDTO.getSalle2().getFonction().getNom()));
-//            LineString geom = (LineString) GenericService.wktToGeometry(porteDTO.getGeom());
-//            if (salle1 != null && salle2 != null && geom != null) {
-//                if (!porteRepository.existsBySalle1AndSalle2AndGeom(salle1, salle2, geom)) {
-//                    Porte porte = porteRepository.save(new Porte(salle1, salle2, geom));
-//                    URI location = ServletUriComponentsBuilder
-//                            .fromCurrentRequest().path("/{id}")
-//                            .buildAndExpand(porte.getGid()).toUri();
-//                    return ResponseEntity.created(location).body(PorteDTO.create(porte));
-//                }
-//            } else {
-//                return ResponseEntity.notFound().build();
-//            }
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
+    public ResponseEntity<PorteDTO> savePorte(@Valid @RequestBody PorteDTO porteDTO) {
+        porteService.porteDTOToPorte(porteDTO);
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
     @PatchMapping(value = "porte/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PorteDTO> updatePorte(@PathVariable int id, @RequestBody PorteDTO porteDTO) {
-        Optional<Porte> porte = porteRepository.findById(id);
-        if (porte.isPresent()) {
-//            if (porteDTO.getSalle1() != null) porte.get().setSalle1(porteDTO.getSalle1());
-//            return ResponseEntity.ok(PorteDTO.create(etageRepository.save(porte.get())));
+    public ResponseEntity<PorteDTO> updatePorte(@PathVariable int id, @Valid @RequestBody PorteDTO porteDTO) {
+        Porte porte = porteService.findById(id);
+        if (porte != null) {
+            if (porteDTO.getSalle1() != null) {
+                try {
+                    porte.setSalle1(salleService.salleDTOToSalle(porteDTO.getSalle1()));
+                    return ResponseEntity.ok(PorteDTO.create(porteService.save(porte)));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping(value = "porte/{id}")
     public ResponseEntity<?> deletePorte(@PathVariable int id) {
-        Optional<Etage> etage = etageRepository.findById(id);
-        if (etage.isPresent()) {
+        Porte porte = porteService.findById(id);
+        if (porte != null) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
@@ -193,9 +187,9 @@ public class Controller {
     ///////////////////////// SALLE //////////////////////////////
     //////////////////////////////////////////////////////////////
 
-    @GetMapping(value = "/salles")
+    /*@GetMapping(value = "/salles")
     public ResponseEntity<Collection<SalleDTO>> findAllSalles() {
-        return ResponseEntity.ok(salleRepository.findAll().stream().map(SalleDTO::create).collect(Collectors.toList()));
+        return ResponseEntity.ok(salleService.findAll().stream().map(SalleDTO::create).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/salle/{id}")
@@ -220,7 +214,7 @@ public class Controller {
 //            return ResponseEntity.ok(json);
 //        }
 //        return ResponseEntity.notFound().build();
-        return salleRepository.findById(id).map(value -> ResponseEntity.ok(SalleDTO.create(value))).orElseGet(() -> ResponseEntity.notFound().build());
+        return salleService.findById(id).map(value -> ResponseEntity.ok(SalleDTO.create(value))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     //////////////////////////////////////////////////////////////
@@ -229,12 +223,12 @@ public class Controller {
 
     @GetMapping(value = "/escaliers")
     public ResponseEntity<Collection<EscalierDTO>> findAllEscaliers() {
-        return ResponseEntity.ok(escalierRepository.findAll().stream().map(EscalierDTO::create).collect(Collectors.toList()));
+        return ResponseEntity.ok(escalierService.findAll().stream().map(EscalierDTO::create).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/escalier/{id}")
     public ResponseEntity<EscalierDTO> findEscalierById(@PathVariable int id) {
-        return escalierRepository.findById(id).map(value -> ResponseEntity.ok(EscalierDTO.create(value))).orElseGet(() -> ResponseEntity.notFound().build());
-    }
+        return escalierService.findById(id).map(value -> ResponseEntity.ok(EscalierDTO.create(value))).orElseGet(() -> ResponseEntity.notFound().build());
+    }*/
 
 }

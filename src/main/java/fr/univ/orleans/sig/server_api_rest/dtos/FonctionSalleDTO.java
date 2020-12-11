@@ -2,9 +2,12 @@ package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.FonctionSalle;
 
+import javax.validation.constraints.*;
+
 public class FonctionSalleDTO {
 
     private final int id;
+    @NotBlank
     private String nom;
 
     public static FonctionSalleDTO create(FonctionSalle fonctionSalle) {

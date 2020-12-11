@@ -1,20 +1,25 @@
 package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.Porte;
-import fr.univ.orleans.sig.server_api_rest.services.GenericService;
+import fr.univ.orleans.sig.server_api_rest.services.SuperService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.*;
 
 public class PorteDTO {
 
     private final int id;
+    @Valid
     private SalleDTO salle1;
+    @Valid
     private SalleDTO salle2;
+    @Size(min = 2, max = 2)
     private Map<String, Object> geometry;
 
     public static PorteDTO create(Porte porte) {
         return new PorteDTO(porte.getGid(), SalleDTO.create(porte.getSalle1()), SalleDTO.create(porte.getSalle2()),
-                GenericService.lineStringDTO(porte.getGeom()));
+                SuperService.lineStringToLineStringDTO(porte.getGeom()));
     }
 
     private PorteDTO(int id, SalleDTO salle1, SalleDTO salle2, Map<String, Object> geometry) {
