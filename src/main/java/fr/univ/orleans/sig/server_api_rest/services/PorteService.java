@@ -48,8 +48,13 @@ public class PorteService extends SuperService implements GenericService<Porte> 
         return false;
     }
 
+    @Override
     public Porte porteDTOToPorte(PorteDTO porteDTO) throws ParseException {
         return super.porteDTOToPorte(porteDTO);
     }
 
+    @Override
+    public Porte createPorteFromPorteDTO(PorteDTO porteDTO) throws ParseException {
+        return super.createPorteFromPorteDTO(porteDTO);
+    }
 }

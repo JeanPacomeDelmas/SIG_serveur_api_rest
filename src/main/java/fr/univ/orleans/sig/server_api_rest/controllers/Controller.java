@@ -6,8 +6,6 @@ import fr.univ.orleans.sig.server_api_rest.entities.FonctionSalle;
 import fr.univ.orleans.sig.server_api_rest.entities.Porte;
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
 import fr.univ.orleans.sig.server_api_rest.services.*;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -154,8 +152,19 @@ public class Controller {
 
     @PostMapping(value = "/porte", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PorteDTO> savePorte(@Valid @RequestBody PorteDTO porteDTO) {
-        porteService.porteDTOToPorte(porteDTO);
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        Porte porte = null;
+        try {
+            porte = porteService.save(porteService.createPorteFromPorteDTO(porteDTO));
+        } catch (ParseException e) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (porte != null) {
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest().path("/{id}")
+                    .buildAndExpand(porte.getGid()).toUri();
+            return ResponseEntity.created(location).body(PorteDTO.create(porte));
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @PatchMapping(value = "porte/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -167,7 +176,7 @@ public class Controller {
                     porte.setSalle1(salleService.salleDTOToSalle(porteDTO.getSalle1()));
                     return ResponseEntity.ok(PorteDTO.create(porteService.save(porte)));
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    return ResponseEntity.badRequest().build();
                 }
             }
         }
@@ -187,41 +196,25 @@ public class Controller {
     ///////////////////////// SALLE //////////////////////////////
     //////////////////////////////////////////////////////////////
 
-    /*@GetMapping(value = "/salles")
+    @GetMapping(value = "/salles")
     public ResponseEntity<Collection<SalleDTO>> findAllSalles() {
         return ResponseEntity.ok(salleService.findAll().stream().map(SalleDTO::create).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/salle/{id}")
     public ResponseEntity<SalleDTO> findSalleById(@PathVariable int id) {
-//        Optional<Salle> salle = salleRepository.findById(id);
-//        if (salle.isPresent()) {
-//            ArrayList<ArrayList<Double>> coordinates = new ArrayList<>();
-//            for (Coordinate coordinate : salle.get().getGeom().getCoordinates()) {
-//                ArrayList<Double> coords = new ArrayList<>(Arrays.asList(coordinate.x, coordinate.y));
-//                coordinates.add(coords);
-//            }
-//            Map<String, Object> json = new HashMap<>();
-//            json.put("fonction", salle.get().getFonction());
-//            json.put("numero", salle.get().getNumero());
-//            json.put("etage", salle.get().getEtage());
-//            json.put("geometry", new HashMap<String, Object>() {{
-//                put("coordinates", new ArrayList<ArrayList<ArrayList<Double>>>(Collections.singletonList(coordinates)));
-//                put("type", "Polygon");
-//            }});
-//            json.put("type", "Feature");
-//            json.put("gid", id);
-//            return ResponseEntity.ok(json);
-//        }
-//        return ResponseEntity.notFound().build();
-        return salleService.findById(id).map(value -> ResponseEntity.ok(SalleDTO.create(value))).orElseGet(() -> ResponseEntity.notFound().build());
+        Salle salle = salleService.findById(id);
+        if (salle != null) {
+            return ResponseEntity.ok(SalleDTO.create(salle));
+        }
+        return ResponseEntity.notFound().build();
     }
 
     //////////////////////////////////////////////////////////////
     /////////////////////// ESCALIER /////////////////////////////
     //////////////////////////////////////////////////////////////
 
-    @GetMapping(value = "/escaliers")
+    /*@GetMapping(value = "/escaliers")
     public ResponseEntity<Collection<EscalierDTO>> findAllEscaliers() {
         return ResponseEntity.ok(escalierService.findAll().stream().map(EscalierDTO::create).collect(Collectors.toList()));
     }

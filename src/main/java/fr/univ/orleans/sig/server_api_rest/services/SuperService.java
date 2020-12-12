@@ -94,6 +94,16 @@ public class SuperService {
                 salleDTOToSalle(porteDTO.getSalle2()), lineString);
     }
 
+    protected Porte createPorteFromPorteDTO(PorteDTO porteDTO) throws ParseException {
+        LineString lineString = lineStringDTOToLineString(porteDTO.getGeometry());
+        Salle salle1 = salleDTOToSalle(porteDTO.getSalle1());
+        Salle salle2 = salleDTOToSalle(porteDTO.getSalle2());
+        if (salle1 != null && salle2 != null) {
+            return new Porte(salle1, salle2, lineString);
+        }
+        return null;
+    }
+
     protected Etage etageDTOToEtage(EtageDTO etageDTO) {
         return etageRepository.findByNom(etageDTO.getNom());
     }
