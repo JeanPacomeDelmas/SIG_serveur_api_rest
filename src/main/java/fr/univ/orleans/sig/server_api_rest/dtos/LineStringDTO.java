@@ -5,12 +5,11 @@ import org.locationtech.jts.geom.LineString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 public class LineStringDTO {
 
     private final String type;
-    private Object coordinates;
+    private ArrayList<ArrayList<Double>> coordinates;
 
     public static LineStringDTO create(LineString lineString) {
         ArrayList<ArrayList<Double>> coordinates = new ArrayList<>();
@@ -21,7 +20,11 @@ public class LineStringDTO {
         return new LineStringDTO(coordinates);
     }
 
-    public LineStringDTO(Object coordinates) {
+    private LineStringDTO() {
+        this.type = "LineString";
+    }
+
+    private LineStringDTO(ArrayList<ArrayList<Double>> coordinates) {
         this.type = "LineString";
         this.coordinates = coordinates;
     }
@@ -30,11 +33,11 @@ public class LineStringDTO {
         return type;
     }
 
-    public Object getCoordinates() {
+    public ArrayList<ArrayList<Double>> getCoordinates() {
         return coordinates;
     }
 
-    public void setCoordinates(Object coordinates) {
+    public void setCoordinates(ArrayList<ArrayList<Double>> coordinates) {
         this.coordinates = coordinates;
     }
 

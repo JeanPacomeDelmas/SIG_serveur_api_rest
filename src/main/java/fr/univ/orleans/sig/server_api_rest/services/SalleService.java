@@ -2,6 +2,7 @@ package fr.univ.orleans.sig.server_api_rest.services;
 
 import fr.univ.orleans.sig.server_api_rest.dtos.SalleDTO;
 import fr.univ.orleans.sig.server_api_rest.entities.Etage;
+import fr.univ.orleans.sig.server_api_rest.entities.FonctionSalle;
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
 import fr.univ.orleans.sig.server_api_rest.repositories.SalleRepository;
 import org.locationtech.jts.io.ParseException;
@@ -60,6 +61,10 @@ public class SalleService extends SuperService implements GenericService<Salle> 
 
     public Salle findSalleByNom(String nom) {
         return salleRepository.findByNom(nom);
+    }
+
+    public Salle findSalleByEtageAndFonctionCouloir(Etage etage, FonctionSalle fonctionSalleCouloir) {
+        return salleRepository.findByEtageAndFonction(etage, fonctionSalleCouloir);
     }
 
 }

@@ -3,6 +3,7 @@ package fr.univ.orleans.sig.server_api_rest.services;
 import fr.univ.orleans.sig.server_api_rest.dtos.PorteDTO;
 import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 import fr.univ.orleans.sig.server_api_rest.entities.Porte;
+import fr.univ.orleans.sig.server_api_rest.entities.Salle;
 import fr.univ.orleans.sig.server_api_rest.repositories.PorteRepository;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,11 @@ public class PorteService extends SuperService implements GenericService<Porte> 
         return super.createPorteFromPorteDTO(porteDTO);
     }
 
-    public Collection<Porte> findAllSallesByEtage(Etage etage) {
+    public Collection<Porte> findAllPorteByEtage(Etage etage) {
         return porteRepository.findAllByIdEtage(etage.getGid());
+    }
+
+    public Porte findPorteBySalle(Salle salle,Salle couloir) {
+        return porteRepository.findBySalle(salle.getGid(), couloir.getGid());
     }
 }

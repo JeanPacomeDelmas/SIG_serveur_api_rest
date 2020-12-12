@@ -18,4 +18,8 @@ public interface PorteRepository extends JpaRepository<Porte, Integer> {
     @Query("select p from Porte p where p.salle1.etage.gid = :idEtage")
     List<Porte> findAllByIdEtage(@Param("idEtage") int idEtage);
 
+    @Query("select p from Porte p where (p.salle1.gid = :idSalle and p.salle2.gid = :idCouloir) or " +
+            "(p.salle1.gid = :idCouloir and p.salle2.gid = :idSalle)")
+    Porte findBySalle(@Param("idSalle") int idSalle, @Param("idCouloir") int idCouloir);
+
 }

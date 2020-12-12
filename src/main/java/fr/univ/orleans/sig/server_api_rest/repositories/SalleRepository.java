@@ -16,4 +16,6 @@ public interface SalleRepository extends JpaRepository<Salle, Integer> {
 
     Salle findByNom(String nom);
 
+    Salle findByEtageAndFonction(Etage etage, FonctionSalle fonctionSalle);
+
 }

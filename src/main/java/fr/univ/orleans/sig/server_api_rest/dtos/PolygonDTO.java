@@ -8,7 +8,7 @@ import java.util.*;
 public class PolygonDTO {
 
     private final String type;
-    private Object coordinates;
+    private ArrayList<ArrayList<ArrayList<Double>>> coordinates;
 
     public static PolygonDTO create(Polygon polygon) {
         ArrayList<ArrayList<Double>> coordinates = new ArrayList<>();
@@ -19,7 +19,11 @@ public class PolygonDTO {
         return new PolygonDTO(new ArrayList<>(Collections.singletonList(coordinates)));
     }
 
-    private PolygonDTO(Object coordinates) {
+    private PolygonDTO() {
+        this.type = "Polygon";
+    }
+
+    private PolygonDTO(ArrayList<ArrayList<ArrayList<Double>>> coordinates) {
         this.type = "Polygon";
         this.coordinates = coordinates;
     }
@@ -28,11 +32,11 @@ public class PolygonDTO {
         return type;
     }
 
-    public Object getCoordinates() {
+    public ArrayList<ArrayList<ArrayList<Double>>> getCoordinates() {
         return coordinates;
     }
 
-    public void setCoordinates(Object coordinates) {
+    public void setCoordinates(ArrayList<ArrayList<ArrayList<Double>>> coordinates) {
         this.coordinates = coordinates;
     }
 

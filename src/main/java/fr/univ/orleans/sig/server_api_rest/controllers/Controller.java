@@ -3,16 +3,12 @@ package fr.univ.orleans.sig.server_api_rest.controllers;
 import fr.univ.orleans.sig.server_api_rest.dtos.*;
 import fr.univ.orleans.sig.server_api_rest.entities.*;
 import fr.univ.orleans.sig.server_api_rest.services.*;
-import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -223,7 +219,7 @@ public class Controller {
     public ResponseEntity<Collection<PorteDTO>> findAllPorteByEtage(@PathVariable int idEtage) {
         Etage etage = etageService.findById(idEtage);
         if (etage != null) {
-            return ResponseEntity.ok(porteService.findAllSallesByEtage(etage).stream().map(PorteDTO::create).collect(Collectors.toList()));
+            return ResponseEntity.ok(porteService.findAllPorteByEtage(etage).stream().map(PorteDTO::create).collect(Collectors.toList()));
         }
         return ResponseEntity.notFound().build();
     }
@@ -347,8 +343,9 @@ public class Controller {
             if (porteDepart.getSalle1().getEtage().getGid() == salleArrivee.getEtage().getGid()) {
                 Collection<Salle> salles = salleService.findAllSalleByEtage(salleArrivee.getEtage());
                 for (Salle salle : salles) {
+
                     if (salle.getGid() == salleArrivee.getGid()) {
-//                        trajets.add(SalleDTO.create(salle))
+//                        trajets.add(PorteDTO.create(porteService.findPorteBySalle(salle, salleService.)));
                     }
                 }
             } else {
