@@ -71,14 +71,14 @@ public class SuperService {
     }
 
     public static Map<String, Object> lineStringToLineStringDTO(LineString lineString) {
-        ArrayList<Double> coordinates = new ArrayList<>();
+        ArrayList<ArrayList<Double>> coordinates = new ArrayList<>();
         for (Coordinate coordinate : lineString.getCoordinates()) {
-            coordinates.add(coordinate.x);
-            coordinates.add(coordinate.y);
+            ArrayList<Double> coords = new ArrayList<>(Arrays.asList(coordinate.x, coordinate.y));
+            coordinates.add(coords);
         }
         return new HashMap<>() {{
             put("type", "LineString");
-            put("coordinates", new ArrayList<>(Collections.singletonList(coordinates)));
+            put("coordinates", coordinates);
         }};
     }
 

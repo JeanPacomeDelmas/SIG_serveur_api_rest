@@ -6,8 +6,12 @@ import fr.univ.orleans.sig.server_api_rest.entities.Salle;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface SalleRepository extends JpaRepository<Salle, Integer> {
 
     Salle findByGeomAndEtageAndNumeroAndFonction(Polygon geom, Etage etage, int numero, FonctionSalle fonction);
+
+    List<Salle> findAllByEtage(Etage etage);
 
 }

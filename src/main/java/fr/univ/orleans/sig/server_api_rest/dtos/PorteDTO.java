@@ -7,7 +7,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.util.*;
 
-public class PorteDTO {
+public class PorteDTO implements TrajetDTO {
 
     private final int id;
     private final String type;

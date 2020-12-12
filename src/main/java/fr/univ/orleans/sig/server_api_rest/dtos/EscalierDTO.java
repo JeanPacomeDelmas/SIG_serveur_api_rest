@@ -5,7 +5,7 @@ import fr.univ.orleans.sig.server_api_rest.services.SuperService;
 
 import java.util.*;
 
-public class EscalierDTO {
+public class EscalierDTO implements TrajetDTO {
 
     private final int id;
     private final String type;
