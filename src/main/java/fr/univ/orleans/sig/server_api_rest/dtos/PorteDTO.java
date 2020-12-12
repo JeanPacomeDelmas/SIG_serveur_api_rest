@@ -10,6 +10,7 @@ import java.util.*;
 public class PorteDTO {
 
     private final int id;
+    private final String type;
     @Valid
     private SalleDTO salle1;
     @Valid
@@ -24,6 +25,7 @@ public class PorteDTO {
 
     private PorteDTO(int id, SalleDTO salle1, SalleDTO salle2, Map<String, Object> geometry) {
         this.id = id;
+        this.type = "Feature";
         this.salle1 = salle1;
         this.salle2 = salle2;
         this.geometry = geometry;
@@ -31,6 +33,10 @@ public class PorteDTO {
 
     public int getId() {
         return id;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public SalleDTO getSalle1() {

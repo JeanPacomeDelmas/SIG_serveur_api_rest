@@ -8,6 +8,7 @@ import java.util.*;
 public class EscalierDTO {
 
     private final int id;
+    private final String type;
     private EtageDTO etageB;
     private EtageDTO etageH;
     private SalleDTO salleB;
@@ -26,6 +27,7 @@ public class EscalierDTO {
     private EscalierDTO(int id, EtageDTO etageB, EtageDTO etageH, SalleDTO salleB, SalleDTO salleH,
                         Map<String, Object> geom, Map<String, Object> sortieB, Map<String, Object> sortieH) {
         this.id = id;
+        this.type = "Feature";
         this.etageB = etageB;
         this.etageH = etageH;
         this.salleB = salleB;
@@ -37,6 +39,10 @@ public class EscalierDTO {
 
     public int getId() {
         return id;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public EtageDTO getEtageB() {
