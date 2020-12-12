@@ -1,11 +1,15 @@
 package fr.univ.orleans.sig.server_api_rest.services;
 
 import fr.univ.orleans.sig.server_api_rest.entities.Escalier;
+import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 import fr.univ.orleans.sig.server_api_rest.repositories.EscalierRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class EscalierService implements GenericService<Escalier> {
@@ -44,6 +48,34 @@ public class EscalierService implements GenericService<Escalier> {
             return true;
         }
         return false;
+    }
+
+    public Collection<Escalier> escalierToEscalier(Etage etageDepart, Etage etageArrivee) {
+        ArrayList<Escalier> escaliers = new ArrayList<>();
+        Etage etage1 = etageDepart;
+        Etage etage2 = etageArrivee;
+        while (true) {
+            Escalier escalier;
+            if (etage1.getNom().equals("rdc")) {
+                escalier = escalierRepository.findByEtageHaut(etage1.getGid());
+            } else {
+                escalier = escalierRepository.findByEtageBas(etage1.getGid());
+            }
+            if (escalier != null) {
+                escaliers.add(escalier);
+                etage1 = etage2;
+                if (etage1.getNom().equals("1er")) {
+                    etage2 = escalier.getEtageH();
+                } else {
+                    etage2 = escalier.getEtageB();
+                }
+                if (etage2.getGid() == etageArrivee.getGid()) {
+                    return escaliers;
+                }
+            } else {
+                return null;
+            }
+        }
     }
 
 }

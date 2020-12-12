@@ -270,7 +270,7 @@ public class Controller {
             if (salleService.findSalleByNom(salleDTO.getNom()) == null) {
                 salle.setNom(salleDTO.getNom());
             }
-            if (!fonctionSalleService.conflict(salleDTO.getFonction().getNom())) {
+            if (fonctionSalleService.conflict(salleDTO.getFonction().getNom())) {
                 salle.setFonction(fonctionSalleService.findByNom(salleDTO.getFonction().getNom()));
             }
             return ResponseEntity.ok(SalleDTO.create(salleService.save(salle)));
@@ -340,16 +340,19 @@ public class Controller {
         Salle salleArrivee = salleService.findById(idSalle);
         if (porteDepart != null && salleArrivee != null) {
             trajets.add(PorteDTO.create(porteDepart));
-            if (porteDepart.getSalle1().getEtage().getGid() == salleArrivee.getEtage().getGid()) {
-                Collection<Salle> salles = salleService.findAllSalleByEtage(salleArrivee.getEtage());
-                for (Salle salle : salles) {
-
-                    if (salle.getGid() == salleArrivee.getGid()) {
-//                        trajets.add(PorteDTO.create(porteService.findPorteBySalle(salle, salleService.)));
-                    }
+            if (porteDepart.getSalle1().getEtage().getGid() != salleArrivee.getEtage().getGid()) {
+                for (Escalier escalier :
+                        escalierService.escalierToEscalier(porteDepart.getSalle1().getEtage(), salleArrivee.getEtage())) {
+                    trajets.add(EscalierDTO.create(escalier));
                 }
-            } else {
-
+            }
+            Collection<Salle> salles = salleService.findAllSalleByEtage(salleArrivee.getEtage());
+            for (Salle salle : salles) {
+                if (salle.getGid() == salleArrivee.getGid()) {
+                    trajets.add(PorteDTO.create(porteService.findPorteBySalle(salle,
+                            salleService.findSalleByEtageAndFonctionCouloir(salle.getEtage(),
+                                    fonctionSalleService.findByNom("couloir")))));
+                }
             }
             return ResponseEntity.ok(trajets);
         }
