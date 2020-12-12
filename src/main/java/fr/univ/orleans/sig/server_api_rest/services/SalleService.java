@@ -54,8 +54,12 @@ public class SalleService extends SuperService implements GenericService<Salle> 
         return super.salleDTOToSalle(salleDTO);
     }
 
-    public Collection<Salle> findAllSallesByEtage(Etage etage) {
+    public Collection<Salle> findAllSalleByEtage(Etage etage) {
         return salleRepository.findAllByEtage(etage);
+    }
+
+    public Salle findSalleByNom(String nom) {
+        return salleRepository.findByNom(nom);
     }
 
 }

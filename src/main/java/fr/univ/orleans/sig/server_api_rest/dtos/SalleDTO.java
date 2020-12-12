@@ -1,7 +1,6 @@
 package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
-import fr.univ.orleans.sig.server_api_rest.services.SuperService;
 
 public class SalleDTO {
 
@@ -9,20 +8,20 @@ public class SalleDTO {
     private final String type;
     private PolygonDTO geometry;
     private EtageDTO etage;
-    private int numero;
+    private String nom;
     private FonctionSalleDTO fonction;
 
     public static SalleDTO create(Salle salle) {
         return new SalleDTO(salle.getGid(), PolygonDTO.create(salle.getGeom()),
-                EtageDTO.create(salle.getEtage()), salle.getNumero(), FonctionSalleDTO.create(salle.getFonction()));
+                EtageDTO.create(salle.getEtage()), salle.getNom(), FonctionSalleDTO.create(salle.getFonction()));
     }
 
-    private SalleDTO(int id, PolygonDTO geometry, EtageDTO etage, int numero, FonctionSalleDTO fonction) {
+    private SalleDTO(int id, PolygonDTO geometry, EtageDTO etage, String nom, FonctionSalleDTO fonction) {
         this.id = id;
         this.type = "Feature";
         this.geometry = geometry;
         this.etage = etage;
-        this.numero = numero;
+        this.nom = nom;
         this.fonction = fonction;
     }
 
@@ -50,12 +49,12 @@ public class SalleDTO {
         this.etage = etage;
     }
 
-    public int getNumero() {
-        return numero;
+    public String getNom() {
+        return nom;
     }
 
-    public void setNumero(int numero) {
-        this.numero = numero;
+    public void setNom(String nom) {
+        this.nom = nom;
     }
 
     public FonctionSalleDTO getFonction() {

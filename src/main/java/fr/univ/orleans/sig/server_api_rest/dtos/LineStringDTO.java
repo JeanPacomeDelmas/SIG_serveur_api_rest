@@ -18,7 +18,7 @@ public class LineStringDTO {
             ArrayList<Double> coords = new ArrayList<>(Arrays.asList(coordinate.x, coordinate.y));
             coordinates.add(coords);
         }
-        return new LineStringDTO(Collections.singletonList(coordinates));
+        return new LineStringDTO(coordinates);
     }
 
     public LineStringDTO(Object coordinates) {

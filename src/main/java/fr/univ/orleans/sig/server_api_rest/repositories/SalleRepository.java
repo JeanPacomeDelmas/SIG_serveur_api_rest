@@ -10,8 +10,10 @@ import java.util.List;
 
 public interface SalleRepository extends JpaRepository<Salle, Integer> {
 
-    Salle findByGeomAndEtageAndNumeroAndFonction(Polygon geom, Etage etage, int numero, FonctionSalle fonction);
+    Salle findByGeomAndEtageAndNomAndFonction(Polygon geom, Etage etage, String nom, FonctionSalle fonction);
 
     List<Salle> findAllByEtage(Etage etage);
+
+    Salle findByNom(String nom);
 
 }

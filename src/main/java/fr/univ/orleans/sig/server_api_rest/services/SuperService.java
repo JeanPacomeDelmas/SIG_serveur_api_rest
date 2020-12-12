@@ -6,7 +6,6 @@ import fr.univ.orleans.sig.server_api_rest.entities.FonctionSalle;
 import fr.univ.orleans.sig.server_api_rest.entities.Porte;
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
 import fr.univ.orleans.sig.server_api_rest.repositories.*;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
@@ -57,8 +56,8 @@ public class SuperService {
 
     protected Salle salleDTOToSalle(SalleDTO salleDTO) throws ParseException {
         Polygon polygon = polygonDTOToPolygon(salleDTO.getGeometry());
-        return salleRepository.findByGeomAndEtageAndNumeroAndFonction(polygon, etageDTOToEtage(salleDTO.getEtage()),
-                salleDTO.getNumero(), fonctionSalleDTOToFonctionSalle(salleDTO.getFonction()));
+        return salleRepository.findByGeomAndEtageAndNomAndFonction(polygon, etageDTOToEtage(salleDTO.getEtage()),
+                salleDTO.getNom(), fonctionSalleDTOToFonctionSalle(salleDTO.getFonction()));
     }
 
     protected Porte porteDTOToPorte(PorteDTO porteDTO) throws ParseException {

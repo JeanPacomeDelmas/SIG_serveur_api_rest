@@ -17,18 +17,18 @@ public class Salle {
     @ManyToOne
     @JoinColumn(name = "id_etage", nullable = false)
     private Etage etage;
-    @Column(name = "numero"/*, nullable = false*/)
-    private int numero;
+    @Column(name = "nom", unique = true, nullable = false)
+    private String nom;
     @ManyToOne
     @JoinColumn(name = "id_fonctio", nullable = false)
     private FonctionSalle fonction;
 
     public Salle() { }
 
-    public Salle(Polygon geom, Etage etage, int numero, FonctionSalle fonction) {
+    public Salle(Polygon geom, Etage etage, String nom, FonctionSalle fonction) {
         this.geom = geom;
         this.etage = etage;
-        this.numero = numero;
+        this.nom = nom;
         this.fonction = fonction;
     }
 
@@ -52,12 +52,12 @@ public class Salle {
         this.etage = etage;
     }
 
-    public int getNumero() {
-        return numero;
+    public String getNom() {
+        return nom;
     }
 
-    public void setNumero(int numero) {
-        this.numero = numero;
+    public void setNom(String nom) {
+        this.nom = nom;
     }
 
     public FonctionSalle getFonction() {

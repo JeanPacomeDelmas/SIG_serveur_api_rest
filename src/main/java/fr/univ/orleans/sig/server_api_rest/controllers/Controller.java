@@ -185,11 +185,25 @@ public class Controller {
             if (porteDTO.getSalle1() != null) {
                 try {
                     porte.setSalle1(salleService.salleDTOToSalle(porteDTO.getSalle1()));
-                    return ResponseEntity.ok(PorteDTO.create(porteService.save(porte)));
                 } catch (ParseException e) {
                     return ResponseEntity.badRequest().build();
                 }
             }
+            if (porteDTO.getSalle2() != null) {
+                try {
+                    porte.setSalle2(salleService.salleDTOToSalle(porteDTO.getSalle2()));
+                } catch (ParseException e) {
+                    return ResponseEntity.badRequest().build();
+                }
+            }
+//            if (porteDTO.getGeometry() != null) {
+//                try {
+//                    porte.setGeom(porteDTO.getGeometry());
+//                } catch (ParseException e) {
+//                    return ResponseEntity.badRequest().build();
+//                }
+//            }
+            return ResponseEntity.ok(PorteDTO.create(porteService.save(porte)));
         }
         return ResponseEntity.notFound().build();
     }
@@ -205,13 +219,13 @@ public class Controller {
     }
 
     @CrossOrigin(origins = "http://localhost:1234")
-    @GetMapping(value = "portes/{idEtage}")
+    @GetMapping(value = "portes/etage/{idEtage}")
     public ResponseEntity<Collection<PorteDTO>> findAllPorteByEtage(@PathVariable int idEtage) {
         Etage etage = etageService.findById(idEtage);
         if (etage != null) {
             return ResponseEntity.ok(porteService.findAllSallesByEtage(etage).stream().map(PorteDTO::create).collect(Collectors.toList()));
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.notFound().build();
     }
 
     //////////////////////////////////////////////////////////////
@@ -255,17 +269,18 @@ public class Controller {
     @CrossOrigin(origins = "http://localhost:1234")
     @PatchMapping(value = "salle/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SalleDTO> updateSalle(@PathVariable int id, @Valid @RequestBody SalleDTO salleDTO) {
-//        Salle salle = salleService.findById(id);
-//        if (salle != null) {
-//            if (salleDTO.getSalle1() != null) {
-//                try {
-//                    salle.setSalle1(salleService.salleDTOToSalle(salleDTO.getSalle1()));
-//                    return ResponseEntity.ok(SalleDTO.create(porteService.save(salle)));
-//                } catch (ParseException e) {
-//                    return ResponseEntity.badRequest().build();
-//                }
-//            }
-//        }
+        Salle salle = salleService.findById(id);
+        if (salle != null) {
+            if (salleService.findSalleByNom(salleDTO.getNom()) != null) {
+                try {
+                    salle.setNom(salleDTO.getNom());
+//                    salle.setFonction(salleDTO.getFonction());
+                    return ResponseEntity.ok(SalleDTO.create(porteService.save(salle)));
+                } catch (ParseException e) {
+                    return ResponseEntity.badRequest().build();
+                }
+            }
+        }
         return ResponseEntity.notFound().build();
     }
 
@@ -280,13 +295,23 @@ public class Controller {
     }
 
     @CrossOrigin(origins = "http://localhost:1234")
-    @GetMapping(value = "salles/{idEtage}")
+    @GetMapping(value = "salles/etage/{idEtage}")
     public ResponseEntity<Collection<SalleDTO>> findAllSalleByEtage(@PathVariable int idEtage) {
         Etage etage = etageService.findById(idEtage);
         if (etage != null) {
-            return ResponseEntity.ok(salleService.findAllSallesByEtage(etage).stream().map(SalleDTO::create).collect(Collectors.toList()));
+            return ResponseEntity.ok(salleService.findAllSalleByEtage(etage).stream().map(SalleDTO::create).collect(Collectors.toList()));
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.notFound().build();
+    }
+
+    @CrossOrigin(origins = "http://localhost:1234")
+    @GetMapping(value = "salle/nom/{nom}")
+    public ResponseEntity<SalleDTO> findSalleByNumero(@PathVariable String nom) {
+        Salle salle = salleService.findSalleByNom(nom);
+        if (salle != null) {
+            return ResponseEntity.ok(SalleDTO.create(salle));
+        }
+        return ResponseEntity.notFound().build();
     }
 
     //////////////////////////////////////////////////////////////
@@ -322,9 +347,11 @@ public class Controller {
         if (porteDepart != null && salleArrivee != null) {
             trajets.add(PorteDTO.create(porteDepart));
             if (porteDepart.getSalle1().getEtage().getGid() == salleArrivee.getEtage().getGid()) {
-                Collection<Salle> salles = salleService.findAllSallesByEtage(salleArrivee.getEtage());
+                Collection<Salle> salles = salleService.findAllSalleByEtage(salleArrivee.getEtage());
                 for (Salle salle : salles) {
-
+                    if (salle.getGid() == salleArrivee.getGid()) {
+                        trajets.add(SalleDTO.create(salle))
+                    }
                 }
             } else {
 
