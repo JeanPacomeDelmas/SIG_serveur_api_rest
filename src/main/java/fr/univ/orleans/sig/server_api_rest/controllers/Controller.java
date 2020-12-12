@@ -54,39 +54,39 @@ public class Controller {
         return ResponseEntity.notFound().build();
     }
 
-    @CrossOrigin(origins = "http://localhost:1234")
-    @PostMapping(value = "/fonction_salle", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FonctionSalleDTO> saveFonctionSalle(@Valid @RequestBody FonctionSalleDTO fonctionSalleDTO) {
-        if (fonctionSalleService.conflict(fonctionSalleDTO.getNom())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-        FonctionSalle fonctionSalle = fonctionSalleService.save(new FonctionSalle(fonctionSalleDTO.getNom()));
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest().path("/{id}")
-                .buildAndExpand(fonctionSalle.getGid()).toUri();
-        return ResponseEntity.created(location).body(FonctionSalleDTO.create(fonctionSalle));
-    }
+//    @CrossOrigin(origins = "http://localhost:1234")
+//    @PostMapping(value = "/fonction_salle", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<FonctionSalleDTO> saveFonctionSalle(@Valid @RequestBody FonctionSalleDTO fonctionSalleDTO) {
+//        if (fonctionSalleService.conflict(fonctionSalleDTO.getNom())) {
+//            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+//        }
+//        FonctionSalle fonctionSalle = fonctionSalleService.save(new FonctionSalle(fonctionSalleDTO.getNom()));
+//        URI location = ServletUriComponentsBuilder
+//                .fromCurrentRequest().path("/{id}")
+//                .buildAndExpand(fonctionSalle.getGid()).toUri();
+//        return ResponseEntity.created(location).body(FonctionSalleDTO.create(fonctionSalle));
+//    }
 
-    @CrossOrigin(origins = "http://localhost:1234")
-    @PatchMapping(value = "fonction_salle/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FonctionSalleDTO> updateFonctionSalle(@PathVariable int id, @Valid @RequestBody FonctionSalleDTO fonctionSalleDTO) {
-        FonctionSalle fonctionSalle = fonctionSalleService.findById(id);
-        if (fonctionSalle != null) {
-            fonctionSalle.setNom(fonctionSalleDTO.getNom());
-            return ResponseEntity.ok(FonctionSalleDTO.create(fonctionSalleService.update(fonctionSalle)));
-        }
-        return ResponseEntity.notFound().build();
-    }
+//    @CrossOrigin(origins = "http://localhost:1234")
+//    @PatchMapping(value = "fonction_salle/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<FonctionSalleDTO> updateFonctionSalle(@PathVariable int id, @Valid @RequestBody FonctionSalleDTO fonctionSalleDTO) {
+//        FonctionSalle fonctionSalle = fonctionSalleService.findById(id);
+//        if (fonctionSalle != null) {
+//            fonctionSalle.setNom(fonctionSalleDTO.getNom());
+//            return ResponseEntity.ok(FonctionSalleDTO.create(fonctionSalleService.update(fonctionSalle)));
+//        }
+//        return ResponseEntity.notFound().build();
+//    }
 
-    @CrossOrigin(origins = "http://localhost:1234")
-    @DeleteMapping(value = "fonction_salle/{id}")
-    public ResponseEntity<?> deleteFonctionSalle(@PathVariable int id) {
-        FonctionSalle fonctionSalle = fonctionSalleService.findById(id);
-        if (fonctionSalle != null && fonctionSalleService.delete(fonctionSalle)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
+//    @CrossOrigin(origins = "http://localhost:1234")
+//    @DeleteMapping(value = "fonction_salle/{id}")
+//    public ResponseEntity<?> deleteFonctionSalle(@PathVariable int id) {
+//        FonctionSalle fonctionSalle = fonctionSalleService.findById(id);
+//        if (fonctionSalle != null && fonctionSalleService.delete(fonctionSalle)) {
+//            return ResponseEntity.noContent().build();
+//        }
+//        return ResponseEntity.notFound().build();
+//    }
 
     //////////////////////////////////////////////////////////////
     ///////////////////////// ETAGE //////////////////////////////
@@ -108,36 +108,36 @@ public class Controller {
         return ResponseEntity.notFound().build();
     }
 
-    @CrossOrigin(origins = "http://localhost:1234")
-    @PostMapping(value = "/etage", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EtageDTO> saveEtage(@Valid @RequestBody EtageDTO etageDTO) {
-        Etage etage = etageService.save(new Etage(etageDTO.getNom()));
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest().path("/{id}")
-                .buildAndExpand(etage.getGid()).toUri();
-        return ResponseEntity.created(location).body(EtageDTO.create(etage));
-    }
+//    @CrossOrigin(origins = "http://localhost:1234")
+//    @PostMapping(value = "/etage", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<EtageDTO> saveEtage(@Valid @RequestBody EtageDTO etageDTO) {
+//        Etage etage = etageService.save(new Etage(etageDTO.getNom()));
+//        URI location = ServletUriComponentsBuilder
+//                .fromCurrentRequest().path("/{id}")
+//                .buildAndExpand(etage.getGid()).toUri();
+//        return ResponseEntity.created(location).body(EtageDTO.create(etage));
+//    }
 
-    @CrossOrigin(origins = "http://localhost:1234")
-    @PatchMapping(value = "etage/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EtageDTO> updateEtage(@PathVariable int id, @Valid @RequestBody EtageDTO etageDTO) {
-        Etage etage = etageService.findById(id);
-        if (etage != null) {
-            etage.setNom(etageDTO.getNom());
-            return ResponseEntity.ok(EtageDTO.create(etageService.update(etage)));
-        }
-        return ResponseEntity.notFound().build();
-    }
+//    @CrossOrigin(origins = "http://localhost:1234")
+//    @PatchMapping(value = "etage/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<EtageDTO> updateEtage(@PathVariable int id, @Valid @RequestBody EtageDTO etageDTO) {
+//        Etage etage = etageService.findById(id);
+//        if (etage != null) {
+//            etage.setNom(etageDTO.getNom());
+//            return ResponseEntity.ok(EtageDTO.create(etageService.update(etage)));
+//        }
+//        return ResponseEntity.notFound().build();
+//    }
 
-    @CrossOrigin(origins = "http://localhost:1234")
-    @DeleteMapping(value = "etage/{id}")
-    public ResponseEntity<?> deleteEtage(@PathVariable int id) {
-        Etage etage = etageService.findById(id);
-        if (etage != null && etageService.delete(etage)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
+//    @CrossOrigin(origins = "http://localhost:1234")
+//    @DeleteMapping(value = "etage/{id}")
+//    public ResponseEntity<?> deleteEtage(@PathVariable int id) {
+//        Etage etage = etageService.findById(id);
+//        if (etage != null && etageService.delete(etage)) {
+//            return ResponseEntity.noContent().build();
+//        }
+//        return ResponseEntity.notFound().build();
+//    }
 
     //////////////////////////////////////////////////////////////
     ///////////////////////// PORTE //////////////////////////////
@@ -159,64 +159,64 @@ public class Controller {
         return ResponseEntity.notFound().build();
     }
 
-    @CrossOrigin(origins = "http://localhost:1234")
-    @PostMapping(value = "/porte", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PorteDTO> savePorte(@Valid @RequestBody PorteDTO porteDTO) {
-        Porte porte = null;
-        try {
-            porte = porteService.save(porteService.createPorteFromPorteDTO(porteDTO));
-        } catch (ParseException e) {
-            return ResponseEntity.badRequest().build();
-        }
-        if (porte != null) {
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest().path("/{id}")
-                    .buildAndExpand(porte.getGid()).toUri();
-            return ResponseEntity.created(location).body(PorteDTO.create(porte));
-        }
-        return ResponseEntity.badRequest().build();
-    }
+//    @CrossOrigin(origins = "http://localhost:1234")
+//    @PostMapping(value = "/porte", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<PorteDTO> savePorte(@Valid @RequestBody PorteDTO porteDTO) {
+//        Porte porte = null;
+//        try {
+//            porte = porteService.save(porteService.createPorteFromPorteDTO(porteDTO));
+//        } catch (ParseException e) {
+//            return ResponseEntity.badRequest().build();
+//        }
+//        if (porte != null) {
+//            URI location = ServletUriComponentsBuilder
+//                    .fromCurrentRequest().path("/{id}")
+//                    .buildAndExpand(porte.getGid()).toUri();
+//            return ResponseEntity.created(location).body(PorteDTO.create(porte));
+//        }
+//        return ResponseEntity.badRequest().build();
+//    }
 
-    @CrossOrigin(origins = "http://localhost:1234")
-    @PatchMapping(value = "porte/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PorteDTO> updatePorte(@PathVariable int id, @Valid @RequestBody PorteDTO porteDTO) {
-        Porte porte = porteService.findById(id);
-        if (porte != null) {
-            if (porteDTO.getSalle1() != null) {
-                try {
-                    porte.setSalle1(salleService.salleDTOToSalle(porteDTO.getSalle1()));
-                } catch (ParseException e) {
-                    return ResponseEntity.badRequest().build();
-                }
-            }
-            if (porteDTO.getSalle2() != null) {
-                try {
-                    porte.setSalle2(salleService.salleDTOToSalle(porteDTO.getSalle2()));
-                } catch (ParseException e) {
-                    return ResponseEntity.badRequest().build();
-                }
-            }
-//            if (porteDTO.getGeometry() != null) {
+//    @CrossOrigin(origins = "http://localhost:1234")
+//    @PatchMapping(value = "porte/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<PorteDTO> updatePorte(@PathVariable int id, @Valid @RequestBody PorteDTO porteDTO) {
+//        Porte porte = porteService.findById(id);
+//        if (porte != null) {
+//            if (porteDTO.getSalle1() != null) {
 //                try {
-//                    porte.setGeom(porteDTO.getGeometry());
+//                    porte.setSalle1(salleService.salleDTOToSalle(porteDTO.getSalle1()));
 //                } catch (ParseException e) {
 //                    return ResponseEntity.badRequest().build();
 //                }
 //            }
-            return ResponseEntity.ok(PorteDTO.create(porteService.save(porte)));
-        }
-        return ResponseEntity.notFound().build();
-    }
+//            if (porteDTO.getSalle2() != null) {
+//                try {
+//                    porte.setSalle2(salleService.salleDTOToSalle(porteDTO.getSalle2()));
+//                } catch (ParseException e) {
+//                    return ResponseEntity.badRequest().build();
+//                }
+//            }
+////            if (porteDTO.getGeometry() != null) {
+////                try {
+////                    porte.setGeom(porteDTO.getGeometry());
+////                } catch (ParseException e) {
+////                    return ResponseEntity.badRequest().build();
+////                }
+////            }
+//            return ResponseEntity.ok(PorteDTO.create(porteService.save(porte)));
+//        }
+//        return ResponseEntity.notFound().build();
+//    }
 
-    @CrossOrigin(origins = "http://localhost:1234")
-    @DeleteMapping(value = "porte/{id}")
-    public ResponseEntity<?> deletePorte(@PathVariable int id) {
-        Porte porte = porteService.findById(id);
-        if (porte != null) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
+//    @CrossOrigin(origins = "http://localhost:1234")
+//    @DeleteMapping(value = "porte/{id}")
+//    public ResponseEntity<?> deletePorte(@PathVariable int id) {
+//        Porte porte = porteService.findById(id);
+//        if (porte != null) {
+//            return ResponseEntity.noContent().build();
+//        }
+//        return ResponseEntity.notFound().build();
+//    }
 
     @CrossOrigin(origins = "http://localhost:1234")
     @GetMapping(value = "portes/etage/{idEtage}")
@@ -248,48 +248,49 @@ public class Controller {
         return ResponseEntity.notFound().build();
     }
 
-    @CrossOrigin(origins = "http://localhost:1234")
-    @PostMapping(value = "/salle", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SalleDTO> saveSalle(@Valid @RequestBody SalleDTO salleDTO) {
-//        Salle salle = null;
-//        try {
-//            salle = salleService.save(salleService.createSalleFromSalleDTO(salleDTO));
-//        } catch (ParseException e) {
-//            return ResponseEntity.badRequest().build();
-//        }
-//        if (salle != null) {
-//            URI location = ServletUriComponentsBuilder
-//                    .fromCurrentRequest().path("/{id}")
-//                    .buildAndExpand(salle.getGid()).toUri();
-//            return ResponseEntity.created(location).body(SalleDTO.create(salle));
-//        }
-        return ResponseEntity.badRequest().build();
-    }
+//    @CrossOrigin(origins = "http://localhost:1234")
+//    @PostMapping(value = "/salle", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<SalleDTO> saveSalle(@Valid @RequestBody SalleDTO salleDTO) {
+////        Salle salle = null;
+////        try {
+////            salle = salleService.save(salleService.createSalleFromSalleDTO(salleDTO));
+////        } catch (ParseException e) {
+////            return ResponseEntity.badRequest().build();
+////        }
+////        if (salle != null) {
+////            URI location = ServletUriComponentsBuilder
+////                    .fromCurrentRequest().path("/{id}")
+////                    .buildAndExpand(salle.getGid()).toUri();
+////            return ResponseEntity.created(location).body(SalleDTO.create(salle));
+////        }
+//        return ResponseEntity.badRequest().build();
+//    }
 
     @CrossOrigin(origins = "http://localhost:1234")
     @PatchMapping(value = "salle/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SalleDTO> updateSalle(@PathVariable int id, @Valid @RequestBody SalleDTO salleDTO) {
         Salle salle = salleService.findById(id);
         if (salle != null) {
-            if (salleService.findSalleByNom(salleDTO.getNom()) != null) {
+            if (salleService.findSalleByNom(salleDTO.getNom()) == null) {
                 salle.setNom(salleDTO.getNom());
-//               salle.setFonction(salleDTO.getFonction());
-                return ResponseEntity.ok(SalleDTO.create(salleService.save(salle)));
-
             }
+            if (!fonctionSalleService.conflict(salleDTO.getFonction().getNom())) {
+                salle.setFonction(fonctionSalleService.findByNom(salleDTO.getFonction().getNom()));
+            }
+            return ResponseEntity.ok(SalleDTO.create(salleService.save(salle)));
         }
         return ResponseEntity.notFound().build();
     }
 
-    @CrossOrigin(origins = "http://localhost:1234")
-    @DeleteMapping(value = "salle/{id}")
-    public ResponseEntity<?> deleteSalle(@PathVariable int id) {
-        Porte porte = porteService.findById(id);
-        if (porte != null) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
+//    @CrossOrigin(origins = "http://localhost:1234")
+//    @DeleteMapping(value = "salle/{id}")
+//    public ResponseEntity<?> deleteSalle(@PathVariable int id) {
+//        Porte porte = porteService.findById(id);
+//        if (porte != null) {
+//            return ResponseEntity.noContent().build();
+//        }
+//        return ResponseEntity.notFound().build();
+//    }
 
     @CrossOrigin(origins = "http://localhost:1234")
     @GetMapping(value = "salles/etage/{idEtage}")

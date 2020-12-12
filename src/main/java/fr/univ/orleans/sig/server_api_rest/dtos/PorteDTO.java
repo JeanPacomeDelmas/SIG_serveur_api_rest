@@ -5,7 +5,6 @@ import fr.univ.orleans.sig.server_api_rest.services.SuperService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import java.util.*;
 
 public class PorteDTO implements TrajetDTO {
 

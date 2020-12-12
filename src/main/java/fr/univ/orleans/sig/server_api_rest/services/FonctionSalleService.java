@@ -50,4 +50,8 @@ public class FonctionSalleService implements GenericService<FonctionSalle> {
         return false;
     }
 
+    public FonctionSalle findByNom(String nom) {
+        return fonctionSalleRepository.findByNom(nom);
+    }
+
 }

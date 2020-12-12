@@ -2,13 +2,18 @@ package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 public class SalleDTO {
 
     private final int id;
     private final String type;
     private PolygonDTO geometry;
     private EtageDTO etage;
+    @NotNull
     private String nom;
+    @Valid
     private FonctionSalleDTO fonction;
 
     public static SalleDTO create(Salle salle) {
