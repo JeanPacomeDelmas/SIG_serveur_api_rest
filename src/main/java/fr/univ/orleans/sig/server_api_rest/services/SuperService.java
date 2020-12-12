@@ -46,26 +46,14 @@ public class SuperService {
         return (Polygon) wktToGeometry(polygon.toString());
     }
 
-    protected LineString lineStringDTOToLineString(Map<String, Object> lineStringDTO) throws ParseException {
-        StringBuilder lineString = new StringBuilder(lineStringDTO.get("type").toString().toUpperCase(Locale.ROOT) + " (");
-        for (ArrayList<Double> arrayList : (ArrayList<ArrayList<Double>>) lineStringDTO.get("coordinates")) {
+    protected LineString lineStringDTOToLineString(LineStringDTO lineStringDTO) throws ParseException {
+        StringBuilder lineString = new StringBuilder(lineStringDTO.getType().toUpperCase(Locale.ROOT) + " (");
+        for (ArrayList<Double> arrayList : (ArrayList<ArrayList<Double>>) lineStringDTO.getCoordinates()) {
             lineString.append(arrayList.get(0)).append(" ").append(arrayList.get(1)).append(", ");
         }
         lineString.append(")");
         return (LineString) wktToGeometry(lineString.toString());
     }
-
-//    public static Map<String, Object> lineStringToLineStringDTO(LineString lineString) {
-//        ArrayList<ArrayList<Double>> coordinates = new ArrayList<>();
-//        for (Coordinate coordinate : lineString.getCoordinates()) {
-//            ArrayList<Double> coords = new ArrayList<>(Arrays.asList(coordinate.x, coordinate.y));
-//            coordinates.add(coords);
-//        }
-//        return new HashMap<>() {{
-//            put("type", "LineString");
-//            put("coordinates", coordinates);
-//        }};
-//    }
 
     protected Salle salleDTOToSalle(SalleDTO salleDTO) throws ParseException {
         Polygon polygon = polygonDTOToPolygon(salleDTO.getGeometry());

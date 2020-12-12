@@ -12,8 +12,7 @@ public class PolygonDTO {
 
     public static PolygonDTO create(Polygon polygon) {
         ArrayList<ArrayList<Double>> coordinates = new ArrayList<>();
-        for (
-                Coordinate coordinate : polygon.getCoordinates()) {
+        for (Coordinate coordinate : polygon.getCoordinates()) {
             ArrayList<Double> coords = new ArrayList<>(Arrays.asList(coordinate.x, coordinate.y));
             coordinates.add(coords);
         }

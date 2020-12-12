@@ -14,18 +14,18 @@ public class EscalierDTO implements TrajetDTO {
     private SalleDTO salleB;
     private SalleDTO salleH;
     private PolygonDTO geometry;
-    private Map<String, Object> sortieB;
-    private Map<String, Object> sortieH;
+    private LineStringDTO sortieB;
+    private LineStringDTO sortieH;
 
     public static EscalierDTO create(Escalier escalier) {
         return new EscalierDTO(escalier.getGid(), EtageDTO.create(escalier.getEtageB()),
                 EtageDTO.create(escalier.getEtageH()), SalleDTO.create(escalier.getSalleB()),
                 SalleDTO.create(escalier.getSalleH()), PolygonDTO.create(escalier.getGeom()),
-                SuperService.lineStringToLineStringDTO(escalier.getSortieB()), SuperService.lineStringToLineStringDTO(escalier.getSortieH()));
+                LineStringDTO.create(escalier.getSortieB()), LineStringDTO.create(escalier.getSortieH()));
     }
 
     private EscalierDTO(int id, EtageDTO etageB, EtageDTO etageH, SalleDTO salleB, SalleDTO salleH,
-                        PolygonDTO geom, Map<String, Object> sortieB, Map<String, Object> sortieH) {
+                        PolygonDTO geom, LineStringDTO sortieB, LineStringDTO sortieH) {
         this.id = id;
         this.type = "Feature";
         this.etageB = etageB;
@@ -85,19 +85,19 @@ public class EscalierDTO implements TrajetDTO {
         this.geometry = geom;
     }
 
-    public Map<String, Object> getSortieB() {
+    public LineStringDTO getSortieB() {
         return sortieB;
     }
 
-    public void setSortieB(Map<String, Object> sortieB) {
+    public void setSortieB(LineStringDTO sortieB) {
         this.sortieB = sortieB;
     }
 
-    public Map<String, Object> getSortieH() {
+    public LineStringDTO getSortieH() {
         return sortieH;
     }
 
-    public void setSortieH(Map<String, Object> sortieH) {
+    public void setSortieH(LineStringDTO sortieH) {
         this.sortieH = sortieH;
     }
 
