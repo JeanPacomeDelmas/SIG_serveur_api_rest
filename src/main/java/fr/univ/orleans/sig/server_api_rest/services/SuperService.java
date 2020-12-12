@@ -1,9 +1,6 @@
 package fr.univ.orleans.sig.server_api_rest.services;
 
-import fr.univ.orleans.sig.server_api_rest.dtos.EtageDTO;
-import fr.univ.orleans.sig.server_api_rest.dtos.FonctionSalleDTO;
-import fr.univ.orleans.sig.server_api_rest.dtos.PorteDTO;
-import fr.univ.orleans.sig.server_api_rest.dtos.SalleDTO;
+import fr.univ.orleans.sig.server_api_rest.dtos.*;
 import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 import fr.univ.orleans.sig.server_api_rest.entities.FonctionSalle;
 import fr.univ.orleans.sig.server_api_rest.entities.Porte;
@@ -38,9 +35,9 @@ public class SuperService {
         return new WKTReader().read(wellKnownText);
     }
 
-    protected Polygon polygonDTOToPolygon(Map<String, Object> polygonDTO) throws ParseException {
-        StringBuilder polygon = new StringBuilder(polygonDTO.get("type").toString().toUpperCase(Locale.ROOT) + " ((");
-        for (ArrayList<ArrayList<Double>> arrayList2 : (ArrayList<ArrayList<ArrayList<Double>>>) polygonDTO.get("coordinates")) {
+    protected Polygon polygonDTOToPolygon(PolygonDTO polygonDTO) throws ParseException {
+        StringBuilder polygon = new StringBuilder(polygonDTO.getType().toUpperCase(Locale.ROOT) + " ((");
+        for (ArrayList<ArrayList<Double>> arrayList2 : (ArrayList<ArrayList<ArrayList<Double>>>) polygonDTO.getCoordinates()) {
             for (ArrayList<Double> arrayList : arrayList2) {
                 polygon.append(arrayList.get(0)).append(" ").append(arrayList.get(1)).append(", ");
             }
@@ -58,29 +55,17 @@ public class SuperService {
         return (LineString) wktToGeometry(lineString.toString());
     }
 
-    public static Map<String, Object> polygonToPolygonDTO(Polygon polygon) {
-        ArrayList<ArrayList<Double>> coordinates = new ArrayList<>();
-        for (Coordinate coordinate : polygon.getCoordinates()) {
-            ArrayList<Double> coords = new ArrayList<>(Arrays.asList(coordinate.x, coordinate.y));
-            coordinates.add(coords);
-        }
-        return new HashMap<>() {{
-            put("type", "Polygon");
-            put("coordinates", new ArrayList<>(Collections.singletonList(coordinates)));
-        }};
-    }
-
-    public static Map<String, Object> lineStringToLineStringDTO(LineString lineString) {
-        ArrayList<ArrayList<Double>> coordinates = new ArrayList<>();
-        for (Coordinate coordinate : lineString.getCoordinates()) {
-            ArrayList<Double> coords = new ArrayList<>(Arrays.asList(coordinate.x, coordinate.y));
-            coordinates.add(coords);
-        }
-        return new HashMap<>() {{
-            put("type", "LineString");
-            put("coordinates", coordinates);
-        }};
-    }
+//    public static Map<String, Object> lineStringToLineStringDTO(LineString lineString) {
+//        ArrayList<ArrayList<Double>> coordinates = new ArrayList<>();
+//        for (Coordinate coordinate : lineString.getCoordinates()) {
+//            ArrayList<Double> coords = new ArrayList<>(Arrays.asList(coordinate.x, coordinate.y));
+//            coordinates.add(coords);
+//        }
+//        return new HashMap<>() {{
+//            put("type", "LineString");
+//            put("coordinates", coordinates);
+//        }};
+//    }
 
     protected Salle salleDTOToSalle(SalleDTO salleDTO) throws ParseException {
         Polygon polygon = polygonDTOToPolygon(salleDTO.getGeometry());

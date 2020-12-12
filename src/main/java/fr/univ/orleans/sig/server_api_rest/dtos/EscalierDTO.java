@@ -13,19 +13,19 @@ public class EscalierDTO implements TrajetDTO {
     private EtageDTO etageH;
     private SalleDTO salleB;
     private SalleDTO salleH;
-    private Map<String, Object> geometry;
+    private PolygonDTO geometry;
     private Map<String, Object> sortieB;
     private Map<String, Object> sortieH;
 
     public static EscalierDTO create(Escalier escalier) {
         return new EscalierDTO(escalier.getGid(), EtageDTO.create(escalier.getEtageB()),
                 EtageDTO.create(escalier.getEtageH()), SalleDTO.create(escalier.getSalleB()),
-                SalleDTO.create(escalier.getSalleH()), SuperService.polygonToPolygonDTO(escalier.getGeom()),
+                SalleDTO.create(escalier.getSalleH()), PolygonDTO.create(escalier.getGeom()),
                 SuperService.lineStringToLineStringDTO(escalier.getSortieB()), SuperService.lineStringToLineStringDTO(escalier.getSortieH()));
     }
 
     private EscalierDTO(int id, EtageDTO etageB, EtageDTO etageH, SalleDTO salleB, SalleDTO salleH,
-                        Map<String, Object> geom, Map<String, Object> sortieB, Map<String, Object> sortieH) {
+                        PolygonDTO geom, Map<String, Object> sortieB, Map<String, Object> sortieH) {
         this.id = id;
         this.type = "Feature";
         this.etageB = etageB;
@@ -77,11 +77,11 @@ public class EscalierDTO implements TrajetDTO {
         this.salleH = salleH;
     }
 
-    public Map<String, Object> getGeometry() {
+    public PolygonDTO getGeometry() {
         return geometry;
     }
 
-    public void setGeometry(Map<String, Object> geom) {
+    public void setGeometry(PolygonDTO geom) {
         this.geometry = geom;
     }
 

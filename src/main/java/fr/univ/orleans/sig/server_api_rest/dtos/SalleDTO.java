@@ -3,23 +3,21 @@ package fr.univ.orleans.sig.server_api_rest.dtos;
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
 import fr.univ.orleans.sig.server_api_rest.services.SuperService;
 
-import java.util.*;
-
 public class SalleDTO {
 
     private final int id;
     private final String type;
-    private Map<String, Object> geometry;
+    private PolygonDTO geometry;
     private EtageDTO etage;
     private int numero;
     private FonctionSalleDTO fonction;
 
     public static SalleDTO create(Salle salle) {
-        return new SalleDTO(salle.getGid(), SuperService.polygonToPolygonDTO(salle.getGeom()),
+        return new SalleDTO(salle.getGid(), PolygonDTO.create(salle.getGeom()),
                 EtageDTO.create(salle.getEtage()), salle.getNumero(), FonctionSalleDTO.create(salle.getFonction()));
     }
 
-    private SalleDTO(int id, Map<String, Object> geometry, EtageDTO etage, int numero, FonctionSalleDTO fonction) {
+    private SalleDTO(int id, PolygonDTO geometry, EtageDTO etage, int numero, FonctionSalleDTO fonction) {
         this.id = id;
         this.type = "Feature";
         this.geometry = geometry;
@@ -36,11 +34,11 @@ public class SalleDTO {
         return type;
     }
 
-    public Map<String, Object> getGeometry() {
+    public PolygonDTO getGeometry() {
         return geometry;
     }
 
-    public void setGeometry(Map<String, Object> geometry) {
+    public void setGeometry(PolygonDTO geometry) {
         this.geometry = geometry;
     }
 

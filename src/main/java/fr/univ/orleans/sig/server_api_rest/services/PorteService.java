@@ -1,6 +1,7 @@
 package fr.univ.orleans.sig.server_api_rest.services;
 
 import fr.univ.orleans.sig.server_api_rest.dtos.PorteDTO;
+import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 import fr.univ.orleans.sig.server_api_rest.entities.Porte;
 import fr.univ.orleans.sig.server_api_rest.repositories.PorteRepository;
 import org.locationtech.jts.io.ParseException;
@@ -56,5 +57,9 @@ public class PorteService extends SuperService implements GenericService<Porte> 
     @Override
     public Porte createPorteFromPorteDTO(PorteDTO porteDTO) throws ParseException {
         return super.createPorteFromPorteDTO(porteDTO);
+    }
+
+    public Collection<Porte> findAllSallesByEtage(Etage etage) {
+        return porteRepository.findAllByIdEtage(etage.getGid());
     }
 }
