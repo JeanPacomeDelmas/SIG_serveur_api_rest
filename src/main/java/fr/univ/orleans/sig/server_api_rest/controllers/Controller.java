@@ -1,10 +1,7 @@
 package fr.univ.orleans.sig.server_api_rest.controllers;
 
 import fr.univ.orleans.sig.server_api_rest.dtos.*;
-import fr.univ.orleans.sig.server_api_rest.entities.Etage;
-import fr.univ.orleans.sig.server_api_rest.entities.FonctionSalle;
-import fr.univ.orleans.sig.server_api_rest.entities.Porte;
-import fr.univ.orleans.sig.server_api_rest.entities.Salle;
+import fr.univ.orleans.sig.server_api_rest.entities.*;
 import fr.univ.orleans.sig.server_api_rest.services.*;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -210,18 +207,64 @@ public class Controller {
         return ResponseEntity.notFound().build();
     }
 
+    @PostMapping(value = "/salle", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SalleDTO> saveSalle(@Valid @RequestBody SalleDTO salleDTO) {
+        Porte porte = null;
+        try {
+            porte = porteService.save(porteService.createPorteFromPorteDTO(salleDTO));
+        } catch (ParseException e) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (porte != null) {
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest().path("/{id}")
+                    .buildAndExpand(porte.getGid()).toUri();
+            return ResponseEntity.created(location).body(SalleDTO.create(porte));
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @PatchMapping(value = "salle/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SalleDTO> updateSalle(@PathVariable int id, @Valid @RequestBody SalleDTO salleDTO) {
+        Porte porte = porteService.findById(id);
+        if (porte != null) {
+            if (salleDTO.getSalle1() != null) {
+                try {
+                    porte.setSalle1(salleService.salleDTOToSalle(salleDTO.getSalle1()));
+                    return ResponseEntity.ok(SalleDTO.create(porteService.save(porte)));
+                } catch (ParseException e) {
+                    return ResponseEntity.badRequest().build();
+                }
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping(value = "salle/{id}")
+    public ResponseEntity<?> deleteSalle(@PathVariable int id) {
+        Porte porte = porteService.findById(id);
+        if (porte != null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     //////////////////////////////////////////////////////////////
     /////////////////////// ESCALIER /////////////////////////////
     //////////////////////////////////////////////////////////////
 
-    /*@GetMapping(value = "/escaliers")
+    @GetMapping(value = "/escaliers")
     public ResponseEntity<Collection<EscalierDTO>> findAllEscaliers() {
         return ResponseEntity.ok(escalierService.findAll().stream().map(EscalierDTO::create).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/escalier/{id}")
     public ResponseEntity<EscalierDTO> findEscalierById(@PathVariable int id) {
-        return escalierService.findById(id).map(value -> ResponseEntity.ok(EscalierDTO.create(value))).orElseGet(() -> ResponseEntity.notFound().build());
-    }*/
+        Escalier escalier = escalierService.findById(id);
+        if (escalier != null) {
+            return ResponseEntity.ok(EscalierDTO.create(escalier));
+        }
+        return ResponseEntity.notFound().build();
+    }
 
 }
