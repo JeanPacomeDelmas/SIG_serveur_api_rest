@@ -272,13 +272,10 @@ public class Controller {
         Salle salle = salleService.findById(id);
         if (salle != null) {
             if (salleService.findSalleByNom(salleDTO.getNom()) != null) {
-                try {
-                    salle.setNom(salleDTO.getNom());
-//                    salle.setFonction(salleDTO.getFonction());
-                    return ResponseEntity.ok(SalleDTO.create(porteService.save(salle)));
-                } catch (ParseException e) {
-                    return ResponseEntity.badRequest().build();
-                }
+                salle.setNom(salleDTO.getNom());
+//               salle.setFonction(salleDTO.getFonction());
+                return ResponseEntity.ok(SalleDTO.create(salleService.save(salle)));
+
             }
         }
         return ResponseEntity.notFound().build();
@@ -350,7 +347,7 @@ public class Controller {
                 Collection<Salle> salles = salleService.findAllSalleByEtage(salleArrivee.getEtage());
                 for (Salle salle : salles) {
                     if (salle.getGid() == salleArrivee.getGid()) {
-                        trajets.add(SalleDTO.create(salle))
+//                        trajets.add(SalleDTO.create(salle))
                     }
                 }
             } else {
