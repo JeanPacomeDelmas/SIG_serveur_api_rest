@@ -16,14 +16,14 @@ public class PorteDTO implements TrajetDTO {
     @Size(min = 2, max = 2)
     private LineStringDTO geometry;
     @Valid
-    private EtageDTO properties;
+    private SubPorteDTO properties;
 
     public static PorteDTO create(Porte porte) {
         return new PorteDTO(porte.getGid(), SalleDTO.create(porte.getSalle1()), SalleDTO.create(porte.getSalle2()),
-                LineStringDTO.create(porte.getGeom()), EtageDTO.create(porte.getSalle1().getEtage()));
+                LineStringDTO.create(porte.getGeom()), new SubPorteDTO(EtageDTO.create(porte.getSalle1().getEtage())));
     }
 
-    private PorteDTO(int id, SalleDTO salle1, SalleDTO salle2, LineStringDTO geometry, EtageDTO properties) {
+    private PorteDTO(int id, SalleDTO salle1, SalleDTO salle2, LineStringDTO geometry, SubPorteDTO properties) {
         this.id = id;
         this.type = "Feature";
         this.salle1 = salle1;
@@ -64,11 +64,11 @@ public class PorteDTO implements TrajetDTO {
         this.geometry = geometry;
     }
 
-    public EtageDTO getProperties() {
+    public SubPorteDTO getProperties() {
         return properties;
     }
 
-    public void setProperties(EtageDTO properties) {
+    public void setProperties(SubPorteDTO properties) {
         this.properties = properties;
     }
 

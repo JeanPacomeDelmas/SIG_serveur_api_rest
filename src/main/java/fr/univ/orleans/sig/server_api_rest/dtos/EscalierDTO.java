@@ -2,15 +2,23 @@ package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.Escalier;
 
+import javax.validation.Valid;
+
 public class EscalierDTO implements TrajetDTO {
 
     private final int id;
     private final String type;
+    @Valid
     private SalleDTO salleB;
+    @Valid
     private SalleDTO salleH;
+    @Valid
     private PolygonDTO geometry;
+    @Valid
     private LineStringDTO sortieB;
+    @Valid
     private LineStringDTO sortieH;
+    @Valid
     private SubEscalierDTO properties;
 
     public static EscalierDTO create(Escalier escalier) {

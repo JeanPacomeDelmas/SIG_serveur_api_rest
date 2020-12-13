@@ -69,6 +69,8 @@ public class TrajetService {
         return (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
     }
 
+//    private boolean
+
     private Collection<Noeud> voisinsNoeud(Noeud noeud) throws ParseException {
         ArrayList<Noeud> voisins = new ArrayList<>();
         for (int i = - 1; i < 2; i++) {
@@ -76,8 +78,10 @@ public class TrajetService {
                 if (i != 0 || j != 0) {
                     double x = noeud.getPoint().getX() + i * 0.5;
                     double y = noeud.getPoint().getY() + j * 0.5;
-                    voisins.add(new Noeud((Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")"),
-                            0, 0));
+                    Point point = (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
+//                    if () {
+//                        voisins.add(new Noeud(point, 0, 0));
+//                    }
                 }
             }
         }

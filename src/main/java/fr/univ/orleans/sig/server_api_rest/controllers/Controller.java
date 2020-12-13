@@ -352,18 +352,16 @@ public class Controller {
 //        return ResponseEntity.badRequest().build();
 //    }
 
-//    @CrossOrigin(origins = "*", allowedHeaders = "*")
-//    @GetMapping(value = "trajet/porteDepart/{idPorte}/salle/{idSalle}")
-//    public ResponseEntity<LineStringDTO> findTrajet(@PathVariable int idPorte, @PathVariable int idSalle) {
-//        Porte porteDepart = porteService.findById(idPorte);
-//        Salle salleArrivee = salleService.findById(idSalle);
-//        Collection<LineString> lineStrings;
-//        try {
-//            lineStrings = trajetService.pathFinding(porteDepart, salleArrivee);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        return ResponseEntity.badRequest().build();
-//    }
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @GetMapping(value = "trajet/porteDepart/{idPorte}/salle/{idSalle}")
+    public ResponseEntity<Collection<LineStringDTO>> findTrajet(@PathVariable int idPorte, @PathVariable int idSalle) {
+        Porte porteDepart = porteService.findById(idPorte);
+        Salle salleArrivee = salleService.findById(idSalle);
+        try {
+            return ResponseEntity.ok(trajetService.pathFinding(porteDepart, salleArrivee).stream().map(LineStringDTO::create).collect(Collectors.toList()));
+        } catch (ParseException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
 }
