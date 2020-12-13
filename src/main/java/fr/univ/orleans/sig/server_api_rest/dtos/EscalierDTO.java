@@ -1,40 +1,35 @@
 package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.Escalier;
-import fr.univ.orleans.sig.server_api_rest.services.SuperService;
-
-import java.util.*;
 
 public class EscalierDTO implements TrajetDTO {
 
     private final int id;
     private final String type;
-    private EtageDTO etageB;
-    private EtageDTO etageH;
     private SalleDTO salleB;
     private SalleDTO salleH;
     private PolygonDTO geometry;
     private LineStringDTO sortieB;
     private LineStringDTO sortieH;
+    private SubEscalierDTO properties;
 
     public static EscalierDTO create(Escalier escalier) {
-        return new EscalierDTO(escalier.getGid(), EtageDTO.create(escalier.getEtageB()),
-                EtageDTO.create(escalier.getEtageH()), SalleDTO.create(escalier.getSalleB()),
+        return new EscalierDTO(escalier.getGid(), SalleDTO.create(escalier.getSalleB()),
                 SalleDTO.create(escalier.getSalleH()), PolygonDTO.create(escalier.getGeom()),
-                LineStringDTO.create(escalier.getSortieB()), LineStringDTO.create(escalier.getSortieH()));
+                LineStringDTO.create(escalier.getSortieB()), LineStringDTO.create(escalier.getSortieH()),
+                new SubEscalierDTO(EtageDTO.create(escalier.getEtageB()), EtageDTO.create(escalier.getEtageH())));
     }
 
-    private EscalierDTO(int id, EtageDTO etageB, EtageDTO etageH, SalleDTO salleB, SalleDTO salleH,
-                        PolygonDTO geom, LineStringDTO sortieB, LineStringDTO sortieH) {
+    private EscalierDTO(int id, SalleDTO salleB, SalleDTO salleH,
+                        PolygonDTO geom, LineStringDTO sortieB, LineStringDTO sortieH, SubEscalierDTO properties) {
         this.id = id;
         this.type = "Feature";
-        this.etageB = etageB;
-        this.etageH = etageH;
         this.salleB = salleB;
         this.salleH = salleH;
         this.geometry = geom;
         this.sortieB = sortieB;
         this.sortieH = sortieH;
+        this.properties = properties;
     }
 
     public int getId() {
@@ -43,22 +38,6 @@ public class EscalierDTO implements TrajetDTO {
 
     public String getType() {
         return type;
-    }
-
-    public EtageDTO getEtageB() {
-        return etageB;
-    }
-
-    public void setEtageB(EtageDTO etageB) {
-        this.etageB = etageB;
-    }
-
-    public EtageDTO getEtageH() {
-        return etageH;
-    }
-
-    public void setEtageH(EtageDTO etageH) {
-        this.etageH = etageH;
     }
 
     public SalleDTO getSalleB() {
@@ -99,6 +78,14 @@ public class EscalierDTO implements TrajetDTO {
 
     public void setSortieH(LineStringDTO sortieH) {
         this.sortieH = sortieH;
+    }
+
+    public SubEscalierDTO getProperties() {
+        return properties;
+    }
+
+    public void setProperties(SubEscalierDTO properties) {
+        this.properties = properties;
     }
 
 }

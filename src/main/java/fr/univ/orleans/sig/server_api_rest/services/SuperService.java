@@ -30,7 +30,7 @@ public class SuperService {
     @Autowired
     private PorteRepository porteRepository;
 
-    protected Geometry wktToGeometry(String wellKnownText) throws ParseException {
+    public static Geometry wktToGeometry(String wellKnownText) throws ParseException {
         return new WKTReader().read(wellKnownText);
     }
 
@@ -56,8 +56,8 @@ public class SuperService {
 
     protected Salle salleDTOToSalle(SalleDTO salleDTO) throws ParseException {
         Polygon polygon = polygonDTOToPolygon(salleDTO.getGeometry());
-        return salleRepository.findByGeomAndEtageAndNomAndFonction(polygon, etageDTOToEtage(salleDTO.getEtage()),
-                salleDTO.getNom(), fonctionSalleDTOToFonctionSalle(salleDTO.getFonction()));
+        return salleRepository.findByGeomAndEtageAndNomAndFonction(polygon, etageDTOToEtage(salleDTO.getProperties().getEtage()),
+                salleDTO.getProperties().getNom(), fonctionSalleDTOToFonctionSalle(salleDTO.getProperties().getFonction()));
     }
 
     protected Porte porteDTOToPorte(PorteDTO porteDTO) throws ParseException {
