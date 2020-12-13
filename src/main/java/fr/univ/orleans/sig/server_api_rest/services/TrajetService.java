@@ -13,7 +13,6 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.bind.handler.NoUnboundElementsBindHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -384,11 +383,6 @@ public class TrajetService {
             RouteFinder<Noeud> routeFinder = new RouteFinder<>(graph, new NoeudScorer(), new NoeudScorer());
             ArrayList<Noeud> noeuds = (ArrayList<Noeud>) routeFinder.findRoute(depart, objectif);
             ArrayList<Point> points = (ArrayList<Point>) noeuds.stream().map(Noeud::getPoint).collect(Collectors.toList());
-
-//            ArrayList<Point> trajetPoint = (ArrayList<Point>) pathTrajet(depart, objectif);
-//            if (!trajetPoint.contains(objectif.getPoint())) {
-//                trajetPoint.add(objectif.getPoint());
-//            }
 
             StringBuilder trajetString = new StringBuilder("LINESTRING (");
             for (int j = 0; j < points.size(); j++) {
