@@ -4,6 +4,8 @@ import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 import fr.univ.orleans.sig.server_api_rest.services.A.GraphNode;
 import org.locationtech.jts.geom.Point;
 
+import java.util.Objects;
+
 public class Noeud implements GraphNode {
 
     private final String id;
@@ -18,17 +20,24 @@ public class Noeud implements GraphNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (getClass().equals(obj.getClass())) {
-            Noeud noeud = (Noeud) obj;
-            return id.equals(noeud.id) && noeud.id.equals(id);
-        }
-        return false;
+        if (this == obj)
+            return true;
+        // null check
+        if (obj == null)
+            return false;
+        // type check and cast
+        if (getClass() != obj.getClass())
+            return false;
+        Noeud noeud = (Noeud) obj;
+        // field comparison
+        return Objects.equals(id, noeud.id)
+                && Objects.equals(noeud.id, id);
+//        if (getClass().equals(obj.getClass())) {
+//            Noeud noeud = (Noeud) obj;
+//            return id.equals(noeud.id) && noeud.id.equals(id);
+//        }
+//        return false;
     }
-
-//    @Override
-//    public int hashCode() {
-//        return id.hashCode();
-//    }
 
     public String getId() {
         return id;

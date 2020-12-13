@@ -293,11 +293,11 @@ public class TrajetService {
         if (polygon.contains(point)) {
             return true;
         }
-        for (LineString lineString : borduresPolygon(polygon)) {
-            if (lineString.contains(point)) {
-                return true;
-            }
-        }
+//        for (LineString lineString : borduresPolygon(polygon)) {
+//            if (lineString.contains(point)) {
+//                return true;
+//            }
+//        }
         return false;
     }
 
@@ -322,16 +322,40 @@ public class TrajetService {
         Set<Noeud> noeuds = new HashSet<>();
         Map<String, Set<String>> connections = new HashMap<>();
 
+        ArrayList<Point> pointsPorte =
+                (ArrayList<Point>) porteService.findAllPorteByEtage(
+                        from.getEtage()).stream().map(value -> {
+                    try {
+                        return milieuLineString(value.getGeom());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                }).collect(Collectors.toList());
+        for (Point point : pointsPorte) {
+            Noeud n = new Noeud(point, from.getEtage());
+            noeuds.add(n);
+            connections.put(n.getId(), new HashSet<>());
+        }
+
         Noeud noeud = from;
         LinkedList<Noeud> voisins = voisinsNoeud(range, noeud);
         noeuds.add(noeud);
         connections.put(noeud.getId(), voisins.stream().map(Noeud::getId).collect(Collectors.toSet()));
-//        int acc = 0;
+
+        for (Point point : pointsPorte) {
+            if (auVoisinage(range, noeud.getPoint(), point)) {
+                connections.get(point.toString()).add(noeud.getId());
+                connections.get(noeud.getId()).add(point.toString());
+            }
+        }
+
+        int acc = 0;
         while (!voisins.isEmpty()) {
-//            acc++;
-//            if (acc % 100 == 0) {
-//                System.out.println(acc);
-//            }
+            acc++;
+            if (acc % 100 == 0) {
+                System.out.println(acc);
+            }
             noeud = voisins.poll();
 //            System.out.println(voisins.size() + ", " + noeud.getId());
             noeuds.add(noeud);
@@ -359,12 +383,19 @@ public class TrajetService {
 //                }
             }
             connections.put(noeud.getId(), voisins.stream().map(Noeud::getId).collect(Collectors.toSet()));
+
+            for (Point point : pointsPorte) {
+                if (auVoisinage(range, noeud.getPoint(), point)) {
+                    connections.get(point.toString()).add(noeud.getId());
+                    connections.get(noeud.getId()).add(point.toString());
+                }
+            }
         }
 
-        System.out.println("size: " + noeuds.size());
-        for (Noeud n : noeuds) {
-            System.out.println(n.getId());
-        }
+//        System.out.println("size: " + noeuds.size());
+//        for (Noeud n : noeuds) {
+//            System.out.println(n.getId());
+//        }
 
         return new Graph<>(noeuds, connections);
     }
