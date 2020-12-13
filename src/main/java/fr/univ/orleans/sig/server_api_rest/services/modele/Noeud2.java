@@ -1,15 +1,18 @@
 package fr.univ.orleans.sig.server_api_rest.services.modele;
 
+import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 import org.locationtech.jts.geom.Point;
 
-public class Noeud implements Comparable<Noeud> {
+public class Noeud2 implements Comparable<Noeud2> {
 
     private final Point point;
+    private final Etage etage;
     private int cout;
-    private int heuristique;
+    private double heuristique;
 
-    public Noeud(Point point, int cout, int heuristique) {
+    public Noeud2(Point point, Etage etage, int cout, double heuristique) {
         this.point = point;
+        this.etage = etage;
         this.cout = cout;
         this.heuristique = heuristique;
     }
@@ -17,14 +20,16 @@ public class Noeud implements Comparable<Noeud> {
     @Override
     public boolean equals(Object obj) {
         if (obj.getClass() == getClass()) {
-            Noeud noeud = (Noeud) obj;
-            return point.getX() == noeud.getPoint().getX() && point.getY() == noeud.getPoint().getY();
+            Noeud2 noeud2 = (Noeud2) obj;
+            return point.getX() == noeud2.getPoint().getX() &&
+                    point.getY() == noeud2.getPoint().getY() &&
+                    etage.getGid() == noeud2.getEtage().getGid();
         }
         return false;
     }
 
     @Override
-    public int compareTo(Noeud o) {
+    public int compareTo(Noeud2 o) {
         if (heuristique < o.heuristique) {
             return -1;
         } else if (heuristique == o.heuristique) {
@@ -38,6 +43,10 @@ public class Noeud implements Comparable<Noeud> {
         return point;
     }
 
+    public Etage getEtage() {
+        return etage;
+    }
+
     public int getCout() {
         return cout;
     }
@@ -46,11 +55,11 @@ public class Noeud implements Comparable<Noeud> {
         this.cout = cout;
     }
 
-    public int getHeuristique() {
+    public double getHeuristique() {
         return heuristique;
     }
 
-    public void setHeuristique(int heuristique) {
+    public void setHeuristique(double heuristique) {
         this.heuristique = heuristique;
     }
 

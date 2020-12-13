@@ -360,8 +360,9 @@ public class Controller {
         try {
             return ResponseEntity.ok(trajetService.pathFinding(porteDepart, salleArrivee).stream().map(LineStringDTO::create).collect(Collectors.toList()));
         } catch (ParseException e) {
-            return ResponseEntity.badRequest().build();
+            e.printStackTrace();
         }
+        return ResponseEntity.badRequest().build();
     }
 
 }
