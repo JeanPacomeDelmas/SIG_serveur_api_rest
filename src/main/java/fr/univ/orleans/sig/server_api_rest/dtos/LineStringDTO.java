@@ -11,7 +11,7 @@ public class LineStringDTO {
 
     private final String type;
     private ArrayList<ArrayList<Double>> coordinates;
-    private EtageDTO attributes;
+    private SubPorteDTO properties;
 
     public static LineStringDTO create(LineString lineString, Etage etage) {
         ArrayList<ArrayList<Double>> coordinates = new ArrayList<>();
@@ -19,17 +19,17 @@ public class LineStringDTO {
             ArrayList<Double> coords = new ArrayList<>(Arrays.asList(coordinate.x, coordinate.y));
             coordinates.add(coords);
         }
-        return new LineStringDTO(coordinates, EtageDTO.create(etage));
+        return new LineStringDTO(coordinates, new SubPorteDTO(EtageDTO.create(etage)));
     }
 
     private LineStringDTO() {
         this.type = "LineString";
     }
 
-    private LineStringDTO(ArrayList<ArrayList<Double>> coordinates, EtageDTO attributes) {
+    private LineStringDTO(ArrayList<ArrayList<Double>> coordinates, SubPorteDTO properties) {
         this.type = "LineString";
         this.coordinates = coordinates;
-        this.attributes = attributes;
+        this.properties = properties;
     }
 
     public String getType() {
@@ -44,12 +44,12 @@ public class LineStringDTO {
         this.coordinates = coordinates;
     }
 
-    public EtageDTO getAttributes() {
-        return attributes;
+    public SubPorteDTO getProperties() {
+        return properties;
     }
 
-    public void setAttributes(EtageDTO attributes) {
-        this.attributes = attributes;
+    public void setProperties(SubPorteDTO properties) {
+        this.properties = properties;
     }
 
 }

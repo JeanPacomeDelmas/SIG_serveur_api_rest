@@ -400,6 +400,8 @@ public class TrajetService {
         return new Graph<>(noeuds, connections);
     }
 
+//    private Graph<Noeud> graph = null;
+
     public Collection<LineString> pathFinding(Porte porteDepart, Salle salleArrivee) throws ParseException {
         HashMap<LineString, Etage> trajets = (HashMap<LineString, Etage>) findTrajet(porteDepart, salleArrivee);
         ArrayList<LineString> paths = new ArrayList<>();
@@ -410,6 +412,9 @@ public class TrajetService {
             Noeud depart = new Noeud(milieuLineString(lineStrings[i]), etages[i]);
             Noeud objectif = new Noeud(milieuLineString(lineStrings[i + 1]), etages[i + 1]);
 
+//            if (graph == null) {
+//                graph = initializeGraph(depart, 1d);
+//            }
             Graph<Noeud> graph = initializeGraph(depart, 1d);
             RouteFinder<Noeud> routeFinder = new RouteFinder<>(graph, new NoeudScorer(), new NoeudScorer());
             ArrayList<Noeud> noeuds = (ArrayList<Noeud>) routeFinder.findRoute(depart, objectif);
