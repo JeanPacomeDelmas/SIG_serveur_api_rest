@@ -358,7 +358,13 @@ public class Controller {
         Porte porteDepart = porteService.findById(idPorte);
         Salle salleArrivee = salleService.findById(idSalle);
         try {
-            return ResponseEntity.ok(trajetService.pathFinding(porteDepart, salleArrivee).stream().map(LineStringDTO::create).collect(Collectors.toList()));
+            ArrayList<LineString> lineStrings = (ArrayList<LineString>) trajetService.pathFinding(porteDepart, salleArrivee);
+            ArrayList<LineStringDTO> lineStringsDTO = new ArrayList<>();
+            lineStringsDTO.add(LineStringDTO.create(lineStrings.get(0), porteDepart.getSalle1().getEtage()));
+            if (lineStrings.size() > 1) {
+                lineStringsDTO.add(LineStringDTO.create(lineStrings.get(1), salleArrivee.getEtage()));
+            }
+            return ResponseEntity.ok(lineStringsDTO);
         } catch (ParseException e) {
             e.printStackTrace();
         }

@@ -24,7 +24,8 @@ public class EscalierDTO implements TrajetDTO {
     public static EscalierDTO create(Escalier escalier) {
         return new EscalierDTO(escalier.getGid(), SalleDTO.create(escalier.getSalleB()),
                 SalleDTO.create(escalier.getSalleH()), PolygonDTO.create(escalier.getGeom()),
-                LineStringDTO.create(escalier.getSortieB()), LineStringDTO.create(escalier.getSortieH()),
+                LineStringDTO.create(escalier.getSortieB(), escalier.getEtageB()),
+                LineStringDTO.create(escalier.getSortieH(), escalier.getEtageH()),
                 new SubEscalierDTO(EtageDTO.create(escalier.getEtageB()), EtageDTO.create(escalier.getEtageH())));
     }
 

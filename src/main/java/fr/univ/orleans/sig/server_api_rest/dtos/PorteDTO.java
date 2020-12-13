@@ -20,7 +20,8 @@ public class PorteDTO implements TrajetDTO {
 
     public static PorteDTO create(Porte porte) {
         return new PorteDTO(porte.getGid(), SalleDTO.create(porte.getSalle1()), SalleDTO.create(porte.getSalle2()),
-                LineStringDTO.create(porte.getGeom()), new SubPorteDTO(EtageDTO.create(porte.getSalle1().getEtage())));
+                LineStringDTO.create(porte.getGeom(), porte.getSalle1().getEtage()),
+                new SubPorteDTO(EtageDTO.create(porte.getSalle1().getEtage())));
     }
 
     private PorteDTO(int id, SalleDTO salle1, SalleDTO salle2, LineStringDTO geometry, SubPorteDTO properties) {
