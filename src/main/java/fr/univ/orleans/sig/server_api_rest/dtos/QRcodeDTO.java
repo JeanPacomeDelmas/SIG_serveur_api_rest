@@ -2,11 +2,17 @@ package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.QRcode;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 public class QRcodeDTO {
 
 	private final int id;
+	@NotBlank
 	private final String text;
+	@NotNull
 	private final PointDTO position;
+	@NotNull
 	private final EtageDTO etage;
 
 	public static QRcodeDTO create(QRcode qrcode) {

@@ -100,4 +100,8 @@ public class SuperService {
         return fonctionSalleRepository.findByNom(fonctionSalleDTO.getNom());
     }
 
+    protected QRcode createQRCodeFromQRCodeDTO(QRcodeDTO qRcodeDTO) throws ParseException {
+        return new QRcode(qRcodeDTO.getText(), pointDTOToPoint(qRcodeDTO.getPosition()), etageDTOToEtage(qRcodeDTO.getEtage()));
+    }
+
 }

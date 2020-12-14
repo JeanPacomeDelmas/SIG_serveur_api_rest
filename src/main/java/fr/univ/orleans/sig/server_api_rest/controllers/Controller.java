@@ -57,7 +57,8 @@ public class Controller {
         if (etage != null) {
             return ResponseEntity.ok(utilisateurService.findAllUtilisateurByEtage(etage).stream().map(UtilisateurDTO::create).collect(Collectors.toList()));
         }
-        return ResponseEntity.notFound().build();    }
+        return ResponseEntity.notFound().build();
+    }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @GetMapping(value = "/utilisateur/{username}")
@@ -118,37 +119,56 @@ public class Controller {
     //////////////////////////////////////////////////////////////
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @PostMapping(value = "/qrcode")
-    public ResponseEntity<String> saveQRCode() {
-//        if (utilisateurService.conflict(utilisateurDTO.getUsername())) {
-//            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-//        }
-//        Utilisateur utilisateur = null;
-//        try {
-//            utilisateur = utilisateurService.save(utilisateurService.createUtilisateurFromUtilisateurDTO(utilisateurDTO));
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//            return ResponseEntity.badRequest().build();
-//        }
-//        if (utilisateur != null) {
-//            URI location = ServletUriComponentsBuilder
-//                    .fromCurrentRequest().path("/{username}")
-//                    .buildAndExpand(utilisateur.getUsername()).toUri();
-//            return ResponseEntity.created(location).body(UtilisateurDTO.create(utilisateur));
-//        }
-//        return ResponseEntity.badRequest().build();
-        // Un Qr code a un id (String correspondant au QRcode + une position)
-        return new ResponseEntity<>("AddQrcode", HttpStatus.OK);
+    @GetMapping(value = "/qrcodes")
+    public ResponseEntity<Collection<QRcodeDTO>> findAllQrCodes() {
+        return ResponseEntity.ok(qRcodeService.findAll().stream().map(QRcodeDTO::create).collect(Collectors.toList()));
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @GetMapping(value = "/qrcodes")
-    public ResponseEntity<String/*QRcode*/> findAllQrCodes() {
-        // Un Qr code a un id (String correspondant au QRcode + une position)
-        return new ResponseEntity<>("AddQrcode", HttpStatus.OK);
+    @GetMapping(value = "/qrcode/{id}")
+    public ResponseEntity<QRcodeDTO> findQrCodesById(@PathVariable int id) {
+        QRcode qRcode = qRcodeService.findById(id);
+        if (qRcode != null) {
+            return ResponseEntity.ok(QRcodeDTO.create(qRcode));
+        }
+        return ResponseEntity.notFound().build();
     }
 
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @GetMapping(value = "/qrcodes/etage/{idEtage}")
+    public ResponseEntity<Collection<QRcodeDTO>> findAllQRCodesByEtage(@PathVariable int idEtage) {
+        Etage etage = etageService.findById(idEtage);
+        if (etage != null) {
+            return ResponseEntity.ok(qRcodeService.findAllQRCOdeByEtage(etage).stream().map(QRcodeDTO::create).collect(Collectors.toList()));
+        }
+        return ResponseEntity.notFound().build();    }
 
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @PostMapping(value = "/qrcode")
+    public ResponseEntity<QRcodeDTO> saveQRCode(@Valid @RequestBody QRcodeDTO qRcodeDTO) {
+        try {
+            if (qRcodeService.conflict(qRcodeDTO.getPosition(), qRcodeDTO.getEtage())) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            ResponseEntity.badRequest().build();
+        }
+        QRcode qRcode = null;
+        try {
+            qRcode = qRcodeService.save(qRcodeService.createQRCodeFromQRCodeDTO(qRcodeDTO));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+        if (qRcode != null) {
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest().path("/{id}")
+                    .buildAndExpand(qRcode.getGid()).toUri();
+            return ResponseEntity.created(location).body(QRcodeDTO.create(qRcode));
+        }
+        return ResponseEntity.badRequest().build();
+    }
 
     //////////////////////////////////////////////////////////////
     //////////////////// FONCTION_SALLE //////////////////////////
