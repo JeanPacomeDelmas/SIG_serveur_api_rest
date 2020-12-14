@@ -10,7 +10,7 @@ import java.util.List;
 public interface EscalierRepository extends JpaRepository<Escalier, Integer> {
 
     @Query("select e from Escalier e where e.etageB.gid = :idEtageH or e.etageH.gid = :idEtageB")
-    List<Escalier> findAllEtageVoisin(@Param("idEtageB") int idEtageB, @Param("idEtageH") int idEtageH);
+    List<Escalier> findAllByEtage(@Param("idEtageB") int idEtageB, @Param("idEtageH") int idEtageH);
 
     @Query("select e from Escalier e where e.etageB.gid = :idEtageH")
     Escalier findByEtageHaut(@Param("idEtageH") int idEtageH);

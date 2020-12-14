@@ -1,5 +1,6 @@
 package fr.univ.orleans.sig.server_api_rest.services;
 
+import fr.univ.orleans.sig.server_api_rest.entities.Escalier;
 import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 import fr.univ.orleans.sig.server_api_rest.entities.Porte;
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
@@ -10,6 +11,7 @@ import fr.univ.orleans.sig.server_api_rest.services.A.modele.NoeudScorer;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -27,20 +29,46 @@ public class TrajetService {
     @Autowired
     private PorteService porteService;
 
-    private Map<LineString, Etage> findEtageTrajet(Porte porteDepart, Salle salleArrivee) {
-        Map<LineString, Etage> trajets = new HashMap<>();
-        trajets.put(porteDepart.getGeom(), porteDepart.getSalle1().getEtage());
+//    private Map<LineString, Etage> findEtageTrajet(Porte porteDepart, Salle salleArrivee) {
+//        Map<LineString, Etage> trajets = new HashMap<>();
+//        trajets.put(porteDepart.getGeom(), porteDepart.getSalle1().getEtage());
+//        if (porteDepart.getSalle1().getEtage().getGid() != salleArrivee.getEtage().getGid()) {
+//            for (LineString lineString : escalierService.escalierToEscalierByLineString(porteDepart.getSalle1().getEtage(), salleArrivee.getEtage())) {
+//                trajets.put(lineString, porteDepart.getSalle1().getEtage());
+//            }
+//        }
+//        Collection<Salle> salles = salleService.findAllSalleByEtage(salleArrivee.getEtage());
+//        for (Salle salle : salles) {
+//            if (salle.getGid() == salleArrivee.getGid()) {
+//                ///////////////////////////////////
+//                ///////////////////////////////////
+//                ///////////////////////////////////
+//                trajets.put(porteService.findPorteBySalle(salle,
+//                        salleService.findSalleByEtageAndFonctionCouloir(salle.getEtage(),
+//                                fonctionSalleService.findByNom("couloir"))).getGeom(), salle.getEtage());
+//                break;
+//            }
+//        }
+//        return trajets;
+//    }
+
+    private ArrayList<Pair<LineString, Etage>> findEtageTrajet(Porte porteDepart, Salle salleArrivee) {
+        ArrayList<Pair<LineString, Etage>> trajets = new ArrayList<>();
+        trajets.add(Pair.of(porteDepart.getGeom(), porteDepart.getSalle1().getEtage()));
         if (porteDepart.getSalle1().getEtage().getGid() != salleArrivee.getEtage().getGid()) {
             for (LineString lineString : escalierService.escalierToEscalierByLineString(porteDepart.getSalle1().getEtage(), salleArrivee.getEtage())) {
-                trajets.put(lineString, porteDepart.getSalle1().getEtage());
+                trajets.add(Pair.of(lineString, porteDepart.getSalle1().getEtage()));
             }
         }
         Collection<Salle> salles = salleService.findAllSalleByEtage(salleArrivee.getEtage());
         for (Salle salle : salles) {
             if (salle.getGid() == salleArrivee.getGid()) {
-                trajets.put(porteService.findPorteBySalle(salle,
+                ///////////////////////////////////
+                ///////////////////////////////////
+                ///////////////////////////////////
+                trajets.add(Pair.of(porteService.findPorteBySalle(salle,
                         salleService.findSalleByEtageAndFonctionCouloir(salle.getEtage(),
-                                fonctionSalleService.findByNom("couloir"))).getGeom(), salle.getEtage());
+                                fonctionSalleService.findByNom("couloir"))).getGeom(), salle.getEtage()));
                 break;
             }
         }
@@ -240,13 +268,13 @@ public class TrajetService {
         return (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
     }
 
-    private Graph<Noeud> initializeGraph(Noeud from, double range) throws ParseException {
+    private Graph<Noeud> initializeGraph(Noeud from, Noeud to, double range) throws ParseException {
         Set<Noeud> noeuds = new HashSet<>();
         Map<String, Set<String>> connections = new HashMap<>();
 
         Etage etageCourant = from.getEtage();
 
-        ArrayList<Point> pointsPorte =
+        ArrayList<Point> pointsPortes =
                 (ArrayList<Point>) porteService.findAllPorteByEtage(
                         etageCourant).stream().map(value -> {
                     try {
@@ -290,7 +318,7 @@ public class TrajetService {
             }
         }
 
-        for (Point point : pointsPorte) {
+        for (Point point : pointsPortes) {
             Noeud porte = new Noeud(point, etageCourant);
             noeuds.add(porte);
             ArrayList<Noeud> voisins = new ArrayList<>();
@@ -308,20 +336,102 @@ public class TrajetService {
             connections.put(porte.getId(), new HashSet<>(voisins.stream().map(Noeud::getId).collect(Collectors.toList())));
         }
 
+        boolean fromEstUnePorte = false;
+        for (Noeud noeud : noeuds) {
+            if (noeud.getId().equals(from.getId())) {
+                fromEstUnePorte = true;
+                break;
+            }
+        }
+        if (!fromEstUnePorte) {
+            noeuds.add(from);
+            ArrayList<Noeud> voisins = new ArrayList<>();
+            for (Noeud voisinPotentiel : noeuds) {
+                if (auVoisinagePoint(2 * range, from.getPoint(), voisinPotentiel.getPoint())) {
+                    voisins.add(voisinPotentiel);
+                    for (String idNoeud : connections.keySet()) {
+                        String idVoisinPotentiel = voisinPotentiel.getId();
+                        if (idNoeud.equals(idVoisinPotentiel)) {
+                            connections.get(idVoisinPotentiel).add(from.getId());
+                        }
+                    }
+                }
+            }
+            connections.put(from.getId(), new HashSet<>(voisins.stream().map(Noeud::getId).collect(Collectors.toList())));
+        }
+
+        noeuds.add(to);
+        ArrayList<Noeud> voisins = new ArrayList<>();
+        for (Noeud voisinPotentiel : noeuds) {
+            if (auVoisinagePoint(2 * range, to.getPoint(), voisinPotentiel.getPoint())) {
+                voisins.add(voisinPotentiel);
+                for (String idNoeud : connections.keySet()) {
+                    String idVoisinPotentiel = voisinPotentiel.getId();
+                    if (idNoeud.equals(idVoisinPotentiel)) {
+                        connections.get(idVoisinPotentiel).add(to.getId());
+                    }
+                }
+            }
+        }
+        connections.put(to.getId(), new HashSet<>(voisins.stream().map(Noeud::getId).collect(Collectors.toList())));
+
         return new Graph<>(noeuds, connections);
     }
 
+//    public Collection<LineString> pathFinding(Porte porteDepart, Salle salleArrivee) throws ParseException {
+//        HashMap<LineString, Etage> trajets = (HashMap<LineString, Etage>) findEtageTrajet(porteDepart, salleArrivee);
+//        ArrayList<LineString> paths = new ArrayList<>();
+//        Set<LineString> setLineStrings = trajets.keySet();
+//        LineString[] lineStrings = setLineStrings.toArray(new LineString[0]);
+//        Etage[] etages = trajets.values().toArray(new Etage[0]);
+//        for (int i = 0; i < trajets.keySet().size() - 1; i += 2) {
+//            Noeud depart = new Noeud(milieuLineString(lineStrings[i]), etages[i]);
+//            Noeud objectif = new Noeud(milieuLineString(lineStrings[i + 1]), etages[i + 1]);
+//
+//            System.out.println(depart.getPoint());
+//            System.out.println(objectif.getPoint());
+//
+//            Graph<Noeud> graph = initializeGraph(depart, 1d);
+////            System.out.println(graph.getNode(depart.getId()).getPoint().toString());
+////            System.out.println(graph.getNode(objectif.getId()).getPoint().toString());
+////            System.out.println();
+////            for (Noeud noeud : graph.getConnections(depart)) {
+////                System.out.println(noeud.getPoint().toString());
+////            }
+////            System.out.println();
+////            for (Noeud noeud : graph.getConnections(objectif)) {
+////                System.out.println(noeud.getPoint().toString());
+////            }
+//            RouteFinder<Noeud> routeFinder = new RouteFinder<>(graph, new NoeudScorer(), new NoeudScorer());
+//            ArrayList<Noeud> noeuds = (ArrayList<Noeud>) routeFinder.findRoute(depart, objectif);
+//            ArrayList<Point> points = (ArrayList<Point>) noeuds.stream().map(Noeud::getPoint).collect(Collectors.toList());
+//
+//            StringBuilder trajetString = new StringBuilder("LINESTRING (");
+//            for (int j = 0; j < points.size(); j++) {
+//                trajetString.append(points.get(j).getX()).append(" ").append(points.get(j).getY());
+//                if (j + 1 < points.size()) {
+//                    trajetString.append(", ");
+//                }
+//            }
+//            trajetString.append(")");
+//            paths.add((LineString) SuperService.wktToGeometry(trajetString.toString()));
+//        }
+//        return paths;
+//    }
+
     public Collection<LineString> pathFinding(Porte porteDepart, Salle salleArrivee) throws ParseException {
-        HashMap<LineString, Etage> trajets = (HashMap<LineString, Etage>) findEtageTrajet(porteDepart, salleArrivee);
+        ArrayList<Pair<LineString, Etage>> trajets = findEtageTrajet(porteDepart, salleArrivee);
         ArrayList<LineString> paths = new ArrayList<>();
-        Set<LineString> setLineStrings = trajets.keySet();
-        LineString[] lineStrings = setLineStrings.toArray(new LineString[0]);
-        Etage[] etages = trajets.values().toArray(new Etage[0]);
-        for (int i = 0; i < trajets.keySet().size() - 1; i += 2) {
+        LineString[] lineStrings = trajets.stream().map(Pair::getFirst).toArray(LineString[]::new);
+        Etage[] etages = trajets.stream().map(Pair::getSecond).toArray(Etage[]::new);
+        for (int i = 0; i < trajets.size() - 1; i += 2) {
             Noeud depart = new Noeud(milieuLineString(lineStrings[i]), etages[i]);
             Noeud objectif = new Noeud(milieuLineString(lineStrings[i + 1]), etages[i + 1]);
 
-            Graph<Noeud> graph = initializeGraph(depart, 1d);
+            System.out.println(depart.getPoint());
+            System.out.println(objectif.getPoint());
+
+            Graph<Noeud> graph = initializeGraph(depart, objectif, 1d);
 //            System.out.println(graph.getNode(depart.getId()).getPoint().toString());
 //            System.out.println(graph.getNode(objectif.getId()).getPoint().toString());
 //            System.out.println();
