@@ -80,17 +80,17 @@ public class SuperService {
         return null;
     }
 
-    protected Utilisateur createUtilisateurFromUtilisateurDTO(UtilisateurDTO utilisateurDTO) throws ParseException {
-        Point point = null;
-        Etage etage = null;
-        Timestamp dateDernierScan = null;
-        if (utilisateurDTO.getPosition() != null && utilisateurDTO.getEtage() != null && utilisateurDTO.getDateDernierScan() != null) {
-            point = pointDTOToPoint(utilisateurDTO.getPosition());
-            etage = etageDTOToEtage(utilisateurDTO.getEtage());
-            dateDernierScan = utilisateurDTO.getDateDernierScan();
-        }
-        return new Utilisateur(utilisateurDTO.getUsername(), point, etage, dateDernierScan);
-    }
+//    protected Utilisateur createUtilisateurFromUtilisateurDTO(UtilisateurDTO utilisateurDTO) throws ParseException {
+//        Point point = null;
+//        Etage etage = null;
+//        Timestamp dateDernierScan = null;
+//        if (utilisateurDTO.getPosition() != null && utilisateurDTO.getEtage() != null && utilisateurDTO.getDateDernierScan() != null) {
+//            point = pointDTOToPoint(utilisateurDTO.getPosition());
+//            etage = etageDTOToEtage(utilisateurDTO.getEtage());
+//            dateDernierScan = utilisateurDTO.getDateDernierScan();
+//        }
+//        return new Utilisateur(utilisateurDTO.getUsername(), point, etage, dateDernierScan);
+//    }
 
     protected Etage etageDTOToEtage(EtageDTO etageDTO) {
         return etageRepository.findByNom(etageDTO.getNom());
@@ -100,8 +100,8 @@ public class SuperService {
         return fonctionSalleRepository.findByNom(fonctionSalleDTO.getNom());
     }
 
-    protected QRcode createQRCodeFromQRCodeDTO(QRcodeDTO qRcodeDTO) throws ParseException {
-        return new QRcode(qRcodeDTO.getText(), pointDTOToPoint(qRcodeDTO.getPosition()), etageDTOToEtage(qRcodeDTO.getEtage()));
-    }
+//    protected QRcode createQRCodeFromQRCodeDTO(QRcodeDTO qRcodeDTO) throws ParseException {
+//        return new QRcode(qRcodeDTO.getText(), pointDTOToPoint(qRcodeDTO.getPosition()), etageDTOToEtage(qRcodeDTO.getEtage()));
+//    }
 
 }

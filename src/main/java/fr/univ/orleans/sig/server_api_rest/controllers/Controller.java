@@ -34,7 +34,7 @@ public class Controller {
     private PorteService porteService;
     @Autowired
     private TrajetService trajetService;
-    @Autowired
+    /*@Autowired
     private UtilisateurService utilisateurService;
     @Autowired
     private QRcodeService qRcodeService;
@@ -125,9 +125,9 @@ public class Controller {
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @GetMapping(value = "/qrcode/{id}")
-    public ResponseEntity<QRcodeDTO> findQrCodesById(@PathVariable int id) {
-        QRcode qRcode = qRcodeService.findById(id);
+    @GetMapping(value = "/qrcode/{text}")
+    public ResponseEntity<QRcodeDTO> findQrCodesById(@PathVariable String text) {
+        QRcode qRcode = qRcodeService.findById(text);
         if (qRcode != null) {
             return ResponseEntity.ok(QRcodeDTO.create(qRcode));
         }
@@ -164,11 +164,11 @@ public class Controller {
         if (qRcode != null) {
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest().path("/{id}")
-                    .buildAndExpand(qRcode.getGid()).toUri();
+                    .buildAndExpand(qRcode.getText()).toUri();
             return ResponseEntity.created(location).body(QRcodeDTO.create(qRcode));
         }
         return ResponseEntity.badRequest().build();
-    }
+    }*/
 
     //////////////////////////////////////////////////////////////
     //////////////////// FONCTION_SALLE //////////////////////////
@@ -480,38 +480,39 @@ public class Controller {
     ///////////////////////// AUTRES /////////////////////////////
     //////////////////////////////////////////////////////////////
 
-//    @CrossOrigin(origins = "*", allowedHeaders = "*")
-//    @GetMapping(value = "/trajet/porteDepart/{idPorte}/salle/{idSalle}")
-//    public ResponseEntity<Collection<LineStringDTO>> findTrajet(@PathVariable int idPorte, @PathVariable int idSalle) {
-//        ArrayList<LineStringDTO> trajets = new ArrayList<>();
-//        Porte porteDepart = porteService.findById(idPorte);
-//        Salle salleArrivee = salleService.findById(idSalle);
-//        if (porteDepart != null && salleArrivee != null) {
-//            for (LineString lineString : trajetService.findTrajet(porteDepart, salleArrivee)) {
-//                trajets.add(LineStringDTO.create(lineString));
-//            }
-//            return ResponseEntity.ok(trajets);
-//        }
-//        return ResponseEntity.badRequest().build();
-//    }
-
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @GetMapping(value = "/trajet/porteDepart/{idPorte}/salle/{idSalle}")
     public ResponseEntity<Collection<LineStringDTO>> findTrajet(@PathVariable int idPorte, @PathVariable int idSalle) {
+        ArrayList<LineStringDTO> trajets = new ArrayList<>();
         Porte porteDepart = porteService.findById(idPorte);
         Salle salleArrivee = salleService.findById(idSalle);
-        try {
-            ArrayList<LineString> lineStrings = (ArrayList<LineString>) trajetService.pathFinding(porteDepart, salleArrivee);
-            ArrayList<LineStringDTO> lineStringsDTO = new ArrayList<>();
-            lineStringsDTO.add(LineStringDTO.create(lineStrings.get(0), porteDepart.getSalle1().getEtage()));
-            if (lineStrings.size() > 1) {
-                lineStringsDTO.add(LineStringDTO.create(lineStrings.get(1), salleArrivee.getEtage()));
+        if (porteDepart != null && salleArrivee != null) {
+            Map<LineString, Etage> etapes = trajetService.findEtageTrajet(porteDepart, salleArrivee);
+            for (LineString lineString : etapes.keySet()) {
+                trajets.add(LineStringDTO.create(lineString, etapes.get(lineString)));
             }
-            return ResponseEntity.ok(lineStringsDTO);
-        } catch (ParseException e) {
-            e.printStackTrace();
+            return ResponseEntity.ok(trajets);
         }
         return ResponseEntity.badRequest().build();
     }
+
+//    @CrossOrigin(origins = "*", allowedHeaders = "*")
+//    @GetMapping(value = "/trajet/porteDepart/{idPorte}/salle/{idSalle}")
+//    public ResponseEntity<Collection<LineStringDTO>> findTrajet(@PathVariable int idPorte, @PathVariable int idSalle) {
+//        Porte porteDepart = porteService.findById(idPorte);
+//        Salle salleArrivee = salleService.findById(idSalle);
+//        try {
+//            ArrayList<LineString> lineStrings = (ArrayList<LineString>) trajetService.pathFinding(porteDepart, salleArrivee);
+//            ArrayList<LineStringDTO> lineStringsDTO = new ArrayList<>();
+//            lineStringsDTO.add(LineStringDTO.create(lineStrings.get(0), porteDepart.getSalle1().getEtage()));
+//            if (lineStrings.size() > 1) {
+//                lineStringsDTO.add(LineStringDTO.create(lineStrings.get(1), salleArrivee.getEtage()));
+//            }
+//            return ResponseEntity.ok(lineStringsDTO);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//        return ResponseEntity.badRequest().build();
+//    }
 
 }

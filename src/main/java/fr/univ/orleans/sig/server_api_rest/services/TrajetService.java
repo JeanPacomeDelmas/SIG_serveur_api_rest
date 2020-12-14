@@ -29,7 +29,7 @@ public class TrajetService {
     @Autowired
     private PorteService porteService;
 
-    private Map<LineString, Etage> findEtageTrajet(Porte porteDepart, Salle salleArrivee) {
+    public Map<LineString, Etage> findEtageTrajet(Porte porteDepart, Salle salleArrivee) {
         Map<LineString, Etage> trajets = new HashMap<>();
         trajets.put(porteDepart.getGeom(), porteDepart.getSalle1().getEtage());
         if (porteDepart.getSalle1().getEtage().getGid() != salleArrivee.getEtage().getGid()) {
