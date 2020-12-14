@@ -1,32 +1,34 @@
 package fr.univ.orleans.sig.server_api_rest.dtos;
 
 import fr.univ.orleans.sig.server_api_rest.entities.QRcode;
-import fr.univ.orleans.sig.server_api_rest.entities.Utilisateur;
-
-import javax.validation.constraints.Size;
 
 public class QRcodeDTO {
 
 	private final int id;
-
 	private final String text;
-
-	@Size(min = 2, max = 2)
-	private final int position;
+	private final PointDTO position;
+	private final EtageDTO etage;
 
 	public static QRcodeDTO create(QRcode qrcode) {
-		return new QRcodeDTO(qrcode.getGid(),qrcode.getText(),qrcode.getPosition());
+		return new QRcodeDTO(qrcode.getGid(), qrcode.getText(), PointDTO.create(qrcode.getPosition(), qrcode.getEtage()),
+				EtageDTO.create(qrcode.getEtage()));
 	}
 
-	private QRcodeDTO(int id, String text, int position) {
+	private QRcodeDTO(int id, String text, PointDTO position, EtageDTO etage) {
 		this.id = id;
 		this.text = text;
 		this.position = position;
+		this.etage = etage;
 	}
 
 	public int getId() { return id; }
 
 	public String getText() { return text; }
 
-	public int getPosition() { return position; }
+	public PointDTO getPosition() { return position; }
+
+	public EtageDTO getEtage() {
+		return etage;
+	}
+
 }

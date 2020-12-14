@@ -4,7 +4,7 @@ import fr.univ.orleans.sig.server_api_rest.entities.Escalier;
 
 import javax.validation.Valid;
 
-public class EscalierDTO implements TrajetDTO {
+public class EscalierDTO {
 
     private final int id;
     private final String type;

@@ -5,7 +5,7 @@ import fr.univ.orleans.sig.server_api_rest.entities.Porte;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
-public class PorteDTO implements TrajetDTO {
+public class PorteDTO {
 
     private final int id;
     private final String type;

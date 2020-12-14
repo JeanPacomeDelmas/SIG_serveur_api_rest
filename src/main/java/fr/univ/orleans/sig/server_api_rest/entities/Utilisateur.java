@@ -1,9 +1,10 @@
 package fr.univ.orleans.sig.server_api_rest.entities;
 
-import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 
 import javax.persistence.Entity;
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Entity
@@ -11,38 +12,31 @@ import java.util.Date;
 public class Utilisateur {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
-	private int gid;
-	@Column(name = "sessiontoken", nullable = false)
-	private String sessiontoken;
+	@Column(name = "username", unique = true, nullable = false)
+	private String username;
 	@Column(name = "position")
-	private int position;
-	@Column(name = "datedernierscan")
-	private Date datedernierscan;
-
+	private Point position;
+	@Column(name = "date_dernier_scan")
+	private Timestamp dateDernierScan; ////////////////////////////////////////
 
 	public Utilisateur() {}
 
-	public Utilisateur(String sessiontoken) {
-		this.sessiontoken = sessiontoken;
+	public Utilisateur(String username) {
+		this.username = username;
+		this.position = null;
+		this.dateDernierScan = null;
 	}
 
+	public Timestamp getDateDernierScan() { return dateDernierScan; }
 
+	public void setDateDernierScan(Timestamp datedernierscan) { this.dateDernierScan = datedernierscan; }
 
-	public Date getDatedernierscan() { return datedernierscan; }
+	public String getUsername() { return username; }
 
-	public void setDatedernierscan(Date datedernierscan) { this.datedernierscan = datedernierscan; }
+	public void setUsername(String sessiontoken) { this.username = sessiontoken; }
 
-	public int getGid() { return gid; }
+	public Point getPosition() { return position; }
 
-	public void setGid(int gid) { this.gid = gid; }
+	public void setPosition(Point position) { this.position = position; }
 
-	public String getSessiontoken() { return sessiontoken; }
-
-	public void setSessiontoken(String sessiontoken) { this.sessiontoken = sessiontoken; }
-
-	public int getPosition() { return position; }
-
-	public void setPosition(int position) { this.position = position; }
 }

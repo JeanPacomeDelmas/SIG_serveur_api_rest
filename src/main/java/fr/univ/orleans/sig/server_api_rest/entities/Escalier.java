@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "escalier")
-public class Escalier implements Trajet {
+public class Escalier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

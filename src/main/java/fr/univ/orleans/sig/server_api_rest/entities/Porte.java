@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "porte")
-public class Porte implements Trajet {
+public class Porte {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

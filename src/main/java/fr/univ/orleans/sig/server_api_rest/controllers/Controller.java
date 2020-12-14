@@ -4,10 +4,8 @@ import fr.univ.orleans.sig.server_api_rest.dtos.*;
 import fr.univ.orleans.sig.server_api_rest.entities.*;
 import fr.univ.orleans.sig.server_api_rest.services.*;
 import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -74,6 +72,7 @@ public class Controller {
         // Un Qr code a un id (String correspondant au QRcode + une position)
         return new ResponseEntity<>("AddQrcode", HttpStatus.OK);
     }
+
 
 
     //////////////////////////////////////////////////////////////
