@@ -7,9 +7,7 @@ import fr.univ.orleans.sig.server_api_rest.services.A.Graph;
 import fr.univ.orleans.sig.server_api_rest.services.A.RouteFinder;
 import fr.univ.orleans.sig.server_api_rest.services.A.modele.Noeud;
 import fr.univ.orleans.sig.server_api_rest.services.A.modele.NoeudScorer;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +27,7 @@ public class TrajetService {
     @Autowired
     private PorteService porteService;
 
-    public Map<LineString, Etage> findEtageTrajet(Porte porteDepart, Salle salleArrivee) {
+    private Map<LineString, Etage> findEtageTrajet(Porte porteDepart, Salle salleArrivee) {
         Map<LineString, Etage> trajets = new HashMap<>();
         trajets.put(porteDepart.getGeom(), porteDepart.getSalle1().getEtage());
         if (porteDepart.getSalle1().getEtage().getGid() != salleArrivee.getEtage().getGid()) {
@@ -58,7 +56,7 @@ public class TrajetService {
     }
 
     private Polygon polygonCouloirByEtage(Etage etage) {
-        return salleService.findSalleByEtageAndFonctionCouloir(etage, fonctionSalleService.findByNom("couloir")).getGeom();
+        return couloirByEtage(etage).getGeom();
     }
 
     private boolean lineStringContainsPoint(Point point, LineString lineString) {
@@ -135,7 +133,11 @@ public class TrajetService {
         return false;
     }
 
-    private LinkedList<Noeud> voisinsNoeud(double range, Noeud noeud) throws ParseException {
+    private Salle couloirByEtage(Etage etage) {
+        return salleService.findSalleByEtageAndFonctionCouloir(etage, fonctionSalleService.findByNom("couloir"));
+    }
+
+    private LinkedList<Noeud> voisinsNoeud(Noeud noeud, Polygon polygon, double range) throws ParseException {
         LinkedList<Noeud> voisins = new LinkedList<>();
         for (int i = - 1; i < 2; i++) {
             for (int j = - 1; j < 2; j++) {
@@ -143,7 +145,7 @@ public class TrajetService {
                     double x = noeud.getPoint().getX() + i * range;
                     double y = noeud.getPoint().getY() + j * range;
                     Point point = (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
-                    if (pointInPolygon(point, polygonCouloirByEtage(noeud.getEtage()))) {
+                    if (pointInPolygon(point, polygon)) {
                         voisins.add(new Noeud(point, noeud.getEtage()));
                     }
                 }
@@ -152,13 +154,101 @@ public class TrajetService {
         return voisins;
     }
 
+//    private Graph<Noeud> initializeGraph(Noeud from, double range) throws ParseException {
+//        Set<Noeud> noeuds = new HashSet<>();
+//        Map<String, Set<String>> connections = new HashMap<>();
+//
+//        ArrayList<Point> pointsPorte =
+//                (ArrayList<Point>) porteService.findAllPorteByEtage(
+//                        from.getEtage()).stream().map(value -> {
+//                    try {
+//                        return milieuLineString(value.getGeom());
+//                    } catch (ParseException e) {
+//                        e.printStackTrace();
+//                        return null;
+//                    }
+//                }).collect(Collectors.toList());
+//        for (Point point : pointsPorte) {
+//            Noeud n = new Noeud(point, from.getEtage());
+//            noeuds.add(n);
+//            connections.put(n.getId(), new HashSet<>());
+//        }
+//
+//        Noeud noeud = from;
+//        LinkedList<Noeud> voisins = voisinsNoeud(range, noeud);
+//        noeuds.add(noeud);
+//        connections.put(noeud.getId(), voisins.stream().map(Noeud::getId).collect(Collectors.toSet()));
+//
+//        for (Point point : pointsPorte) {
+//            if (auVoisinagePoint(range, noeud.getPoint(), point)) {
+//                connections.get(point.toString()).add(noeud.getId());
+//                connections.get(noeud.getId()).add(point.toString());
+//            }
+//        }
+//
+//        int acc = 0;
+//        while (!voisins.isEmpty()) {
+//            acc++;
+//            if (acc % 100 == 0) {
+//                System.out.println(acc);
+//            }
+//            noeud = voisins.poll();
+////            System.out.println(voisins.size() + ", " + noeud.getId());
+//            noeuds.add(noeud);
+//            for (Noeud v : voisinsNoeud(range, noeud)) {
+//                boolean contains = false;
+//                for (Noeud n1 : noeuds) {
+//                    if (n1.getId().equals(v.getId())) {
+//                        contains = true;
+//                        break;
+//                    }
+//                }
+//                if (!contains) {
+//                    for (Noeud n2 : voisins) {
+//                        if (n2.getId().equals(v.getId())) {
+//                            contains = true;
+//                            break;
+//                        }
+//                    }
+//                }
+//                if (!contains) {
+//                    voisins.add(v);
+//                }
+////                if (!noeuds.contains(v) && !voisins.contains(v)) {
+////                    voisins.add(v);
+////                }
+//            }
+//            connections.put(noeud.getId(), voisins.stream().map(Noeud::getId).collect(Collectors.toSet()));
+//
+//            for (Point point : pointsPorte) {
+//                if (auVoisinagePoint(range, noeud.getPoint(), point)) {
+//                    connections.get(point.toString()).add(noeud.getId());
+//                    connections.get(noeud.getId()).add(point.toString());
+//                }
+//            }
+//        }
+//
+////        System.out.println("size: " + noeuds.size());
+////        for (Noeud n : noeuds) {
+////            System.out.println(n.getId());
+////        }
+//
+//        return new Graph<>(noeuds, connections);
+//    }
+
+    private Point createPoint(double x, double y) throws ParseException {
+        return (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
+    }
+
     private Graph<Noeud> initializeGraph(Noeud from, double range) throws ParseException {
         Set<Noeud> noeuds = new HashSet<>();
         Map<String, Set<String>> connections = new HashMap<>();
 
+        Etage etageCourant = from.getEtage();
+
         ArrayList<Point> pointsPorte =
                 (ArrayList<Point>) porteService.findAllPorteByEtage(
-                        from.getEtage()).stream().map(value -> {
+                        etageCourant).stream().map(value -> {
                     try {
                         return milieuLineString(value.getGeom());
                     } catch (ParseException e) {
@@ -166,70 +256,57 @@ public class TrajetService {
                         return null;
                     }
                 }).collect(Collectors.toList());
-        for (Point point : pointsPorte) {
-            Noeud n = new Noeud(point, from.getEtage());
-            noeuds.add(n);
-            connections.put(n.getId(), new HashSet<>());
-        }
 
-        Noeud noeud = from;
-        LinkedList<Noeud> voisins = voisinsNoeud(range, noeud);
-        noeuds.add(noeud);
-        connections.put(noeud.getId(), voisins.stream().map(Noeud::getId).collect(Collectors.toSet()));
-
-        for (Point point : pointsPorte) {
-            if (auVoisinagePoint(range, noeud.getPoint(), point)) {
-                connections.get(point.toString()).add(noeud.getId());
-                connections.get(noeud.getId()).add(point.toString());
+        Polygon couloir = polygonCouloirByEtage(etageCourant);
+        Coordinate[] coordinatesCouloir = couloir.getCoordinates();
+        Point H = createPoint(coordinatesCouloir[0].getX(), coordinatesCouloir[0].getY());
+        Point B = createPoint(coordinatesCouloir[0].getX(), coordinatesCouloir[0].getY());
+        Point G = createPoint(coordinatesCouloir[0].getX(), coordinatesCouloir[0].getY());
+        Point D = createPoint(coordinatesCouloir[0].getX(), coordinatesCouloir[0].getY());
+        for (Coordinate coordinate : coordinatesCouloir) {
+            if (coordinate.getX() < G.getX()) {
+                G = createPoint(coordinate.getX(), G.getY());
+            }
+            if (coordinate.getX() > D.getX()) {
+                D = createPoint(coordinate.getX(), D.getY());
+            }
+            if (coordinate.getY() < B.getY()) {
+                B = createPoint(B.getX(), coordinate.getY());
+            }
+            if (coordinate.getY() > H.getY()) {
+                H = createPoint(H.getX(), coordinate.getY());
             }
         }
 
-        int acc = 0;
-        while (!voisins.isEmpty()) {
-            acc++;
-            if (acc % 100 == 0) {
-                System.out.println(acc);
-            }
-            noeud = voisins.poll();
-//            System.out.println(voisins.size() + ", " + noeud.getId());
-            noeuds.add(noeud);
-            for (Noeud v : voisinsNoeud(range, noeud)) {
-                boolean contains = false;
-                for (Noeud n1 : noeuds) {
-                    if (n1.getId().equals(v.getId())) {
-                        contains = true;
-                        break;
-                    }
+        for (double x = G.getX(); x <= D.getX(); x += range) {
+            for (double y = B.getY(); y <= H.getY(); y += range) {
+                Point point = createPoint(x, y);
+                if (pointInPolygon(point, couloir)) {
+                    Noeud noeud = new Noeud(point, etageCourant);
+                    noeuds.add(noeud);
+                    connections.put(noeud.getId(), new HashSet<>(
+                            voisinsNoeud(noeud, couloir, range).stream().map(Noeud::getId).collect(Collectors.toList())));
                 }
-                if (!contains) {
-                    for (Noeud n2 : voisins) {
-                        if (n2.getId().equals(v.getId())) {
-                            contains = true;
-                            break;
+            }
+        }
+
+        for (Point point : pointsPorte) {
+            Noeud porte = new Noeud(point, etageCourant);
+            noeuds.add(porte);
+            ArrayList<Noeud> voisins = new ArrayList<>();
+            for (Noeud voisinPotentiel : noeuds) {
+                if (auVoisinagePoint(2 * range, point, voisinPotentiel.getPoint())) {
+                    voisins.add(voisinPotentiel);
+                    for (String idNoeud : connections.keySet()) {
+                        String idVoisinPotentiel = voisinPotentiel.getId();
+                        if (idNoeud.equals(idVoisinPotentiel)) {
+                            connections.get(idVoisinPotentiel).add(porte.getId());
                         }
                     }
                 }
-                if (!contains) {
-                    voisins.add(v);
-                }
-//                if (!noeuds.contains(v) && !voisins.contains(v)) {
-//                    voisins.add(v);
-//                }
             }
-            connections.put(noeud.getId(), voisins.stream().map(Noeud::getId).collect(Collectors.toSet()));
-
-            for (Point point : pointsPorte) {
-                if (auVoisinagePoint(range, noeud.getPoint(), point)) {
-                    connections.get(point.toString()).add(noeud.getId());
-                    connections.get(noeud.getId()).add(point.toString());
-                }
-            }
+            connections.put(porte.getId(), new HashSet<>(voisins.stream().map(Noeud::getId).collect(Collectors.toList())));
         }
-
-//        System.out.println("size: " + noeuds.size());
-//        for (Noeud n : noeuds) {
-//            System.out.println(n.getId());
-//        }
 
         return new Graph<>(noeuds, connections);
     }
@@ -245,6 +322,16 @@ public class TrajetService {
             Noeud objectif = new Noeud(milieuLineString(lineStrings[i + 1]), etages[i + 1]);
 
             Graph<Noeud> graph = initializeGraph(depart, 1d);
+//            System.out.println(graph.getNode(depart.getId()).getPoint().toString());
+//            System.out.println(graph.getNode(objectif.getId()).getPoint().toString());
+//            System.out.println();
+//            for (Noeud noeud : graph.getConnections(depart)) {
+//                System.out.println(noeud.getPoint().toString());
+//            }
+//            System.out.println();
+//            for (Noeud noeud : graph.getConnections(objectif)) {
+//                System.out.println(noeud.getPoint().toString());
+//            }
             RouteFinder<Noeud> routeFinder = new RouteFinder<>(graph, new NoeudScorer(), new NoeudScorer());
             ArrayList<Noeud> noeuds = (ArrayList<Noeud>) routeFinder.findRoute(depart, objectif);
             ArrayList<Point> points = (ArrayList<Point>) noeuds.stream().map(Noeud::getPoint).collect(Collectors.toList());

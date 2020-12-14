@@ -39,6 +39,14 @@ public class Noeud implements GraphNode {
 //        return false;
     }
 
+    private double distance(Point A, Point B) {
+        return Math.sqrt((A.getX() - B.getX()) * (A.getX() - B.getX()) + (A.getY() - B.getY()) * (A.getY() - B.getY()));
+    }
+
+    public boolean voisinDe(Noeud noeud, double range) {
+        return distance(point, noeud.point) <= range;
+    }
+
     public String getId() {
         return id;
     }

@@ -50,15 +50,14 @@ public class RouteFinder<T extends GraphNode> {
                 }
             });
         }
-//        return
-        List<T> route = new ArrayList<>();
-        RouteNode<T> current = next;
-        do {
-            route.add(0, current.getCurrent());
-            current = allNodes.get(current.getPrevious());
-        } while (current != null);
-        return route;
-//        throw new IllegalStateException("No route found");
+//        List<T> route = new ArrayList<>();
+//        RouteNode<T> current = next;
+//        do {
+//            route.add(0, current.getCurrent());
+//            current = allNodes.get(current.getPrevious());
+//        } while (current != null);
+//        return route;
+        throw new IllegalStateException("No route found");
     }
 
 //    public List<T> findRoute(T from, T to) {
