@@ -1,19 +1,15 @@
 package fr.univ.orleans.sig.server_api_rest.services;
 
-import fr.univ.orleans.sig.server_api_rest.dtos.PorteDTO;
-import fr.univ.orleans.sig.server_api_rest.dtos.QRcodeDTO;
-import fr.univ.orleans.sig.server_api_rest.entities.Etage;
-import fr.univ.orleans.sig.server_api_rest.entities.Porte;
 import fr.univ.orleans.sig.server_api_rest.entities.QRcode;
-import fr.univ.orleans.sig.server_api_rest.entities.Salle;
-import fr.univ.orleans.sig.server_api_rest.repositories.PorteRepository;
 import fr.univ.orleans.sig.server_api_rest.repositories.QRcodeRepository;
-import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
-public class QRcodeService implements  GenericService<QRcode> {
+@Service
+public class QRcodeService implements GenericService<QRcode, Integer> {
+
 	@Autowired
 	private QRcodeRepository qrcodeRepository;
 
@@ -23,7 +19,7 @@ public class QRcodeService implements  GenericService<QRcode> {
 	}
 
 	@Override
-	public QRcode findById(int id) {
+	public QRcode findById(Integer id) {
 		return qrcodeRepository.findById(id).orElse(null);
 	}
 
@@ -49,4 +45,5 @@ public class QRcodeService implements  GenericService<QRcode> {
 		}
 		return false;
 	}
+
 }

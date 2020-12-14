@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Service
-public class EscalierService implements GenericService<Escalier> {
+public class EscalierService implements GenericService<Escalier, Integer> {
 
     @Autowired
     private EscalierRepository escalierRepository;
@@ -22,7 +22,7 @@ public class EscalierService implements GenericService<Escalier> {
     }
 
     @Override
-    public Escalier findById(int id) {
+    public Escalier findById(Integer id) {
         return escalierRepository.findById(id).orElse(null);
     }
 

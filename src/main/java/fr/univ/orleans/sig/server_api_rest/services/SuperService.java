@@ -1,19 +1,18 @@
 package fr.univ.orleans.sig.server_api_rest.services;
 
 import fr.univ.orleans.sig.server_api_rest.dtos.*;
-import fr.univ.orleans.sig.server_api_rest.entities.Etage;
-import fr.univ.orleans.sig.server_api_rest.entities.FonctionSalle;
-import fr.univ.orleans.sig.server_api_rest.entities.Porte;
-import fr.univ.orleans.sig.server_api_rest.entities.Salle;
+import fr.univ.orleans.sig.server_api_rest.entities.*;
 import fr.univ.orleans.sig.server_api_rest.repositories.*;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 @Service
@@ -54,6 +53,11 @@ public class SuperService {
         return (LineString) wktToGeometry(lineString.toString());
     }
 
+    public static Point pointDTOToPoint(PointDTO pointDTO) throws ParseException {
+        String point = pointDTO.getType().toUpperCase(Locale.ROOT) + " (" + pointDTO.getX() + " " + pointDTO.getY() + ")";
+        return (Point) wktToGeometry(point);
+    }
+
     protected Salle salleDTOToSalle(SalleDTO salleDTO) throws ParseException {
         Polygon polygon = polygonDTOToPolygon(salleDTO.getGeometry());
         return salleRepository.findByGeomAndEtageAndNomAndFonction(polygon, etageDTOToEtage(salleDTO.getProperties().getEtage()),
@@ -74,6 +78,18 @@ public class SuperService {
             return new Porte(salle1, salle2, lineString);
         }
         return null;
+    }
+
+    protected Utilisateur createUtilisateurFromUtilisateurDTO(UtilisateurDTO utilisateurDTO) throws ParseException {
+        Point point = null;
+        Etage etage = null;
+        Timestamp dateDernierScan = null;
+        if (utilisateurDTO.getPosition() != null && utilisateurDTO.getEtage() != null && utilisateurDTO.getDateDernierScan() != null) {
+            point = pointDTOToPoint(utilisateurDTO.getPosition());
+            etage = etageDTOToEtage(utilisateurDTO.getEtage());
+            dateDernierScan = utilisateurDTO.getDateDernierScan();
+        }
+        return new Utilisateur(utilisateurDTO.getUsername(), point, etage, dateDernierScan);
     }
 
     protected Etage etageDTOToEtage(EtageDTO etageDTO) {

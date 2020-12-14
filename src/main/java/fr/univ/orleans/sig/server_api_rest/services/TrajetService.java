@@ -7,7 +7,6 @@ import fr.univ.orleans.sig.server_api_rest.services.A.Graph;
 import fr.univ.orleans.sig.server_api_rest.services.A.RouteFinder;
 import fr.univ.orleans.sig.server_api_rest.services.A.modele.Noeud;
 import fr.univ.orleans.sig.server_api_rest.services.A.modele.NoeudScorer;
-import fr.univ.orleans.sig.server_api_rest.services.modele.Noeud2;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
@@ -30,7 +29,7 @@ public class TrajetService {
     @Autowired
     private PorteService porteService;
 
-    private Map<LineString, Etage> findTrajet(Porte porteDepart, Salle salleArrivee) {
+    private Map<LineString, Etage> findEtageTrajet(Porte porteDepart, Salle salleArrivee) {
         Map<LineString, Etage> trajets = new HashMap<>();
         trajets.put(porteDepart.getGeom(), porteDepart.getSalle1().getEtage());
         if (porteDepart.getSalle1().getEtage().getGid() != salleArrivee.getEtage().getGid()) {
@@ -62,7 +61,7 @@ public class TrajetService {
         return salleService.findSalleByEtageAndFonctionCouloir(etage, fonctionSalleService.findByNom("couloir")).getGeom();
     }
 
-    private boolean pointInLineString(Point point, LineString lineString) {
+    private boolean lineStringContainsPoint(Point point, LineString lineString) {
         return lineString.contains(point);
     }
 
@@ -77,46 +76,13 @@ public class TrajetService {
         return lineStrings;
     }
 
-//    private PriorityQueue<Noeud2> voisinsNoeud(double range, Noeud2 noeud2, Noeud2 objectif) throws ParseException {
-//        PriorityQueue<Noeud2> voisins = new PriorityQueue<>();
-//        for (int i = - 1; i < 2; i++) {
-//            for (int j = - 1; j < 2; j++) {
-//                if (i != 0 || j != 0) {
-//                    double x = noeud2.getPoint().getX() + i * range;
-//                    double y = noeud2.getPoint().getY() + j * range;
-//                    Point point = (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
-//                    if (pointInPolygon(point, polygonCouloirByEtage(noeud2.getEtage()))) {
-//                        voisins.add(new Noeud2(point, noeud2.getEtage(), 0, Math.sqrt(
-//                                (noeud2.getPoint().getX() - objectif.getPoint().getX()) * (noeud2.getPoint().getX() - objectif.getPoint().getX()) +
-//                                        (noeud2.getPoint().getY() - objectif.getPoint().getY()) * (noeud2.getPoint().getY() - objectif.getPoint().getY()))));
-//                    }
-//                }
-//            }
-//        }
-//        return voisins;
-//    }
-
-    private boolean containsAvecCoupInf(PriorityQueue<Noeud2> openList, Noeud2 v) {
-        for (Noeud2 noeud2 : openList) {
-            if (noeud2.equals(v)) {
-                if (noeud2.getCout() < v.getCout()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean auVoisinage(double range, Point point, Point objectif) {
+    private boolean auVoisinagePoint(double range, Point point, Point objectif) {
         double distance = Math.sqrt((point.getX() - objectif.getX()) * (point.getX() - objectif.getX()) +
                 (point.getY() - objectif.getY()) * (point.getY() - objectif.getY()));
         return distance <= range;
     }
 
-
-
-
-    public static Collection<Point> pointsSurLineString(LineString lineString, double distanceSeparation) throws ParseException {
+    public static Collection<Point> pointsLineString(LineString lineString, double distanceSeparation) throws ParseException {
         double a = angleDirecteur(lineString);
         double add_x = distanceSeparation * Math.cos(a);
         double add_y = distanceSeparation * Math.sin(a);
@@ -140,164 +106,32 @@ public class TrajetService {
         return Math.sqrt((A.getX() - B.getX()) * (A.getX() - B.getX()) + (A.getY() - B.getY()) * (A.getY() - B.getY()));
     }
 
-
-
-    private PriorityQueue<Noeud2> pointToNoeud(Collection<Point> points, Noeud2 noeud2, Noeud2 objectif) {
-        PriorityQueue<Noeud2> noeud2s = new PriorityQueue<>();
-        for (Point point : points) {
-            noeud2s.add(new Noeud2(point, noeud2.getEtage(), 0, Math.sqrt(
-                    (noeud2.getPoint().getX() - objectif.getPoint().getX()) * (noeud2.getPoint().getX() - objectif.getPoint().getX()) +
-                            (noeud2.getPoint().getY() - objectif.getPoint().getY()) * (noeud2.getPoint().getY() - objectif.getPoint().getY()))));
-        }
-        return noeud2s;
-    }
+//    private PriorityQueue<Noeud> pointToNoeud(Collection<Point> points, Noeud noeud) {
+//        PriorityQueue<Noeud> noeuds = new PriorityQueue<>();
+//        for (Point point : points) {
+//            noeuds.add(new Noeud(point, noeud.getEtage()));
+//        }
+//        return noeuds;
+//    }
 
     private LineString lineStringFrom2Points(Point p1, Point p2) throws ParseException {
         return (LineString) SuperService.wktToGeometry("LINESTRING (" + p1.getX() + " " + p2.getY() + ", " +
                 p2.getX() + " " + p2.getY() + ")");
     }
 
-
-//    private Collection<Point> pathTrajet(Noeud2 depart, Noeud2 objectif) throws ParseException {
-//        LinkedList<Noeud2> closedList = new LinkedList<>();
-//        PriorityQueue<Noeud2> openList = new PriorityQueue<>();
-//        openList.add(depart);
-//        boolean murRencontre = false;
-//        while (!openList.isEmpty()) {
-//            Noeud2 u = openList.poll();
-////            if (u.getPoint().getX() == objectif.getPoint().getX() && u.getPoint().getY() == objectif.getPoint().getY()) {
-//            if (auVoisinage(1, u.getPoint(), objectif.getPoint())) {
-//                return closedList.stream().map(Noeud2::getPoint).collect(Collectors.toList());
-//            }
-//            if (!murRencontre) {
-//                LineString lineString = lineStringFrom2Points(depart.getPoint(), objectif.getPoint());
-//                for (Noeud2 v : pointToNoeud(pointsSurLineString(lineString, 1), u, objectif)) {
-//                    if (pointInPolygon(v.getPoint(), polygonCouloirByEtage(v.getEtage()))) {
-//                        if (!(closedList.contains(v) || containsAvecCoupInf(openList, v))) {
-//                            v.setCout(u.getCout() + 1);
-//                            v.setHeuristique((v.getCout() +
-//                                    Math.sqrt(
-//                                            (v.getPoint().getX() - objectif.getPoint().getX()) * (v.getPoint().getX() - objectif.getPoint().getX()) +
-//                                                    (v.getPoint().getY() - objectif.getPoint().getY()) * (v.getPoint().getY() - objectif.getPoint().getY()))));
-//                            openList.add(v);
-//                        }
-//                    } else {
-//                        murRencontre = true;
-//                        break;
-//                    }
-//                }
-//
-//            } else {
-//                for (Noeud2 v : voisinsNoeud(u, objectif)) {
-//                    if (!(closedList.contains(v) || containsAvecCoupInf(openList, v))) {
-//                        v.setCout(u.getCout() + 1);
-//                        v.setHeuristique((v.getCout() +
-//                                Math.sqrt(
-//                                        (v.getPoint().getX() - objectif.getPoint().getX()) * (v.getPoint().getX() - objectif.getPoint().getX()) +
-//                                                (v.getPoint().getY() - objectif.getPoint().getY()) * (v.getPoint().getY() - objectif.getPoint().getY()))));
-//                        openList.add(v);
-//                    }
-//                }
-//            }
-//            closedList.add(u);
-//        }
-//        return null;
-//    }
-
-//    private Collection<Point> pathTrajet(Noeud2 depart, Noeud2 objectif) throws ParseException {
-//        LinkedList<Noeud2> closedList = new LinkedList<>();
-//        PriorityQueue<Noeud2> openList = new PriorityQueue<>();
-//        openList.add(depart);
-//        boolean murRencontre = false;
-//        while (!openList.isEmpty()) {
-//            Noeud2 u = openList.poll();
-////            if (u.getPoint().getX() == objectif.getPoint().getX() && u.getPoint().getY() == objectif.getPoint().getY()) {
-//            if (auVoisinage(1, u.getPoint(), objectif.getPoint())) {
-//                return closedList.stream().map(Noeud2::getPoint).collect(Collectors.toList());
-//            }
-//            if (!murRencontre) {
-//                LineString lineString = lineStringFrom2Points(depart.getPoint(), objectif.getPoint());
-//                for (Noeud2 v : pointToNoeud(pointsSurLineString(lineString, 1), u, objectif)) {
-//                    if (pointInPolygon(v.getPoint(), polygonCouloirByEtage(v.getEtage()))) {
-//                        if (!(closedList.contains(v) || containsAvecCoupInf(openList, v))) {
-//                            v.setCout(u.getCout() + 1);
-//                            v.setHeuristique((v.getCout() +
-//                                    Math.sqrt(
-//                                            (v.getPoint().getX() - objectif.getPoint().getX()) * (v.getPoint().getX() - objectif.getPoint().getX()) +
-//                                                    (v.getPoint().getY() - objectif.getPoint().getY()) * (v.getPoint().getY() - objectif.getPoint().getY()))));
-//                            openList.add(v);
-//                        }
-//                    } else {
-//                        murRencontre = true;
-//                        break;
-//                    }
-//                }
-//            } else {
-//                for (Noeud2 v : voisinsNoeud(1, u, objectif)) {
-//                    if (!(closedList.contains(v) || containsAvecCoupInf(openList, v))) {
-//                        v.setCout(u.getCout() + 1);
-//                        v.setHeuristique((v.getCout() +
-//                                Math.sqrt(
-//                                        (v.getPoint().getX() - objectif.getPoint().getX()) * (v.getPoint().getX() - objectif.getPoint().getX()) +
-//                                                (v.getPoint().getY() - objectif.getPoint().getY()) * (v.getPoint().getY() - objectif.getPoint().getY()))));
-//                        openList.add(v);
-//                    }
-//                }
-//            }
-//            closedList.add(u);
-//        }
-//        return null;
-//    }
-
-//    public Collection<LineString> pathFinding(Porte porteDepart, Salle salleArrivee) throws ParseException {
-//        HashMap<LineString, Etage> trajets = (HashMap<LineString, Etage>) findTrajet(porteDepart, salleArrivee);
-//        ArrayList<LineString> paths = new ArrayList<>();
-////        for (int i = 0; i < trajets.size() - 1; i += 2) {
-////            Noeud2 depart = new Noeud2(milieuLineString(trajets.get(i)), porteDepart.getSalle1().getEtage(), 0, 0);
-////            Noeud2 objectif = new Noeud2(milieuLineString(trajets.get(i + 1)), , 0, 0);
-//        Set<LineString> setLineStrings = trajets.keySet();
-//        LineString[] lineStrings = setLineStrings.toArray(new LineString[0]);
-//        Etage[] etages = trajets.values().toArray(new Etage[0]);
-//        for (int i = 0; i < trajets.keySet().size() - 1; i += 2) {
-//            Noeud2 depart = new Noeud2(milieuLineString(lineStrings[i]), etages[i], 0, 0);
-//            Noeud2 objectif = new Noeud2(milieuLineString(lineStrings[i + 1]), etages[i + 1], 0, 0);
-//            ArrayList<Point> trajetPoint = (ArrayList<Point>) pathTrajet(depart, objectif);
-//            if (!trajetPoint.contains(objectif.getPoint())) {
-//                trajetPoint.add(objectif.getPoint());
-//            }
-//            StringBuilder trajetString = new StringBuilder("LINESTRING (");
-//            for (int j = 0; j < trajetPoint.size(); j++) {
-//                trajetString.append(trajetPoint.get(j).getX()).append(" ").append(trajetPoint.get(j).getY());
-//                if (j + 1 < trajetPoint.size()) {
-//                    trajetString.append(", ");
-//                }
-//            }
-//            trajetString.append(")");
-//            paths.add((LineString) SuperService.wktToGeometry(trajetString.toString()));
-//        }
-//        return paths;
-//    }
-
-
-
-
-
-
-
-
-
-
-
-
     private boolean pointInPolygon(Point point, Polygon polygon) throws ParseException {
+        return polygon.contains(point);
+    }
+
+    private boolean pointInPolygonWithBorders(Point point, Polygon polygon) throws ParseException {
         if (polygon.contains(point)) {
             return true;
         }
-//        for (LineString lineString : borduresPolygon(polygon)) {
-//            if (lineString.contains(point)) {
-//                return true;
-//            }
-//        }
+        for (LineString lineString : borduresPolygon(polygon)) {
+            if (lineString.contains(point)) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -344,7 +178,7 @@ public class TrajetService {
         connections.put(noeud.getId(), voisins.stream().map(Noeud::getId).collect(Collectors.toSet()));
 
         for (Point point : pointsPorte) {
-            if (auVoisinage(range, noeud.getPoint(), point)) {
+            if (auVoisinagePoint(range, noeud.getPoint(), point)) {
                 connections.get(point.toString()).add(noeud.getId());
                 connections.get(noeud.getId()).add(point.toString());
             }
@@ -385,7 +219,7 @@ public class TrajetService {
             connections.put(noeud.getId(), voisins.stream().map(Noeud::getId).collect(Collectors.toSet()));
 
             for (Point point : pointsPorte) {
-                if (auVoisinage(range, noeud.getPoint(), point)) {
+                if (auVoisinagePoint(range, noeud.getPoint(), point)) {
                     connections.get(point.toString()).add(noeud.getId());
                     connections.get(noeud.getId()).add(point.toString());
                 }
@@ -401,7 +235,7 @@ public class TrajetService {
     }
 
     public Collection<LineString> pathFinding(Porte porteDepart, Salle salleArrivee) throws ParseException {
-        HashMap<LineString, Etage> trajets = (HashMap<LineString, Etage>) findTrajet(porteDepart, salleArrivee);
+        HashMap<LineString, Etage> trajets = (HashMap<LineString, Etage>) findEtageTrajet(porteDepart, salleArrivee);
         ArrayList<LineString> paths = new ArrayList<>();
         Set<LineString> setLineStrings = trajets.keySet();
         LineString[] lineStrings = setLineStrings.toArray(new LineString[0]);

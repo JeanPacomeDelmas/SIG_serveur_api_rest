@@ -10,9 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,42 +34,116 @@ public class Controller {
     private PorteService porteService;
     @Autowired
     private TrajetService trajetService;
+    @Autowired
+    private UtilisateurService utilisateurService;
+    @Autowired
+    private QRcodeService qRcodeService;
 
 
     //////////////////////////////////////////////////////////////
     ////////////////////  UTILISATEUR ////////////////////////////
     //////////////////////////////////////////////////////////////
 
-    ////////////////////// SESSION
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @GetMapping(value = "/launch")
-    public ResponseEntity<String> launch(HttpSession session) {
-
-        //TODO Ajout de l'id dans la BD pour identifier un user
-        return new ResponseEntity<>(session.getId(), HttpStatus.OK);
+    @GetMapping(value = "/utilisateurs")
+    public ResponseEntity<Collection<UtilisateurDTO>> findAllUtilisateur() {
+        return ResponseEntity.ok(utilisateurService.findAll().stream().map(UtilisateurDTO::create).collect(Collectors.toList()));
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @PatchMapping(value = "/utilisateur/{id}")
-    public ResponseEntity<String> updateUtilisateur(@PathVariable String id) {
-        /// Un user a : un id (token de session), une position (heure à laquelle ils ont flashé leur dernier QR code)
-        return new ResponseEntity<>("UpdateUser", HttpStatus.OK);
+    @GetMapping(value = "/utilisateurs/etage/{idEtage}")
+    public ResponseEntity<Collection<UtilisateurDTO>> findAllUtilisateurByEtage(@PathVariable int idEtage) {
+        Etage etage = etageService.findById(idEtage);
+        if (etage != null) {
+            return ResponseEntity.ok(utilisateurService.findAllUtilisateurByEtage(etage).stream().map(UtilisateurDTO::create).collect(Collectors.toList()));
+        }
+        return ResponseEntity.notFound().build();    }
+
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @GetMapping(value = "/utilisateur/{username}")
+    public ResponseEntity<UtilisateurDTO> findUtilisateurById(@PathVariable String username) {
+        Utilisateur utilisateur = utilisateurService.findById(username);
+        if (utilisateur != null) {
+            return ResponseEntity.ok(UtilisateurDTO.create(utilisateur));
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @PostMapping(value = "/utilisateur", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UtilisateurDTO> saveUtilisateur(@Valid @RequestBody UtilisateurDTO utilisateurDTO) {
+        if (utilisateurService.conflict(utilisateurDTO.getUsername())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+        Utilisateur utilisateur = null;
+        try {
+            utilisateur = utilisateurService.save(utilisateurService.createUtilisateurFromUtilisateurDTO(utilisateurDTO));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+        if (utilisateur != null) {
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest().path("/{username}")
+                    .buildAndExpand(utilisateur.getUsername()).toUri();
+            return ResponseEntity.created(location).body(UtilisateurDTO.create(utilisateur));
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @PatchMapping(value = "/utilisateur/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UtilisateurDTO> updateUtilisateur(@PathVariable String username,
+                                                            @Valid @RequestBody UtilisateurDTO utilisateurDTO) {
+        Utilisateur utilisateur = utilisateurService.findById(username);
+        if (utilisateur != null) {
+            if (utilisateurDTO.getEtage() != null && utilisateurDTO.getPosition() != null && utilisateurDTO.getDateDernierScan() != null) {
+                try {
+                    utilisateur.setPosition(SuperService.pointDTOToPoint(utilisateurDTO.getPosition()));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    return ResponseEntity.badRequest().build();
+                }
+                utilisateur.setEtage(etageService.etageDTOToEtage(utilisateurDTO.getEtage()));
+                utilisateur.setDateDernierScan(utilisateurDTO.getDateDernierScan());
+                return ResponseEntity.ok(UtilisateurDTO.create(utilisateurService.save(utilisateur)));
+            }
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
     //////////////////////////////////////////////////////////////
     //////////////////////  QR CODE //////////////////////////////
     //////////////////////////////////////////////////////////////
+
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @PostMapping(value = "/qrcode")
-    public ResponseEntity<String> addQRCode(@PathVariable String id) {
-
+    public ResponseEntity<String> saveQRCode() {
+//        if (utilisateurService.conflict(utilisateurDTO.getUsername())) {
+//            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+//        }
+//        Utilisateur utilisateur = null;
+//        try {
+//            utilisateur = utilisateurService.save(utilisateurService.createUtilisateurFromUtilisateurDTO(utilisateurDTO));
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//            return ResponseEntity.badRequest().build();
+//        }
+//        if (utilisateur != null) {
+//            URI location = ServletUriComponentsBuilder
+//                    .fromCurrentRequest().path("/{username}")
+//                    .buildAndExpand(utilisateur.getUsername()).toUri();
+//            return ResponseEntity.created(location).body(UtilisateurDTO.create(utilisateur));
+//        }
+//        return ResponseEntity.badRequest().build();
         // Un Qr code a un id (String correspondant au QRcode + une position)
         return new ResponseEntity<>("AddQrcode", HttpStatus.OK);
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @GetMapping(value = "/qrcodes")
-    public ResponseEntity<String/*QRcode*/> finAllQrCodes() {
+    public ResponseEntity<String/*QRcode*/> findAllQrCodes() {
         // Un Qr code a un id (String correspondant au QRcode + une position)
         return new ResponseEntity<>("AddQrcode", HttpStatus.OK);
     }
@@ -82,7 +157,6 @@ public class Controller {
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @GetMapping(value = "/fonction_salles")
     public ResponseEntity<Collection<FonctionSalleDTO>> findAllFonctionSalles() {
-        FonctionSalle fonctionSalle = new FonctionSalle(null);
         return ResponseEntity.ok(
                 fonctionSalleService.findAll().stream().map(FonctionSalleDTO::create).collect(Collectors.toList()));
     }
@@ -111,7 +185,7 @@ public class Controller {
 //    }
 
 //    @CrossOrigin(origins = "http://localhost:1234")
-//    @PatchMapping(value = "fonction_salle/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    @PatchMapping(value = "/fonction_salle/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 //    public ResponseEntity<FonctionSalleDTO> updateFonctionSalle(@PathVariable int id, @Valid @RequestBody FonctionSalleDTO fonctionSalleDTO) {
 //        FonctionSalle fonctionSalle = fonctionSalleService.findById(id);
 //        if (fonctionSalle != null) {
@@ -122,7 +196,7 @@ public class Controller {
 //    }
 
 //    @CrossOrigin(origins = "http://localhost:1234")
-//    @DeleteMapping(value = "fonction_salle/{id}")
+//    @DeleteMapping(value = /"fonction_salle/{id}")
 //    public ResponseEntity<?> deleteFonctionSalle(@PathVariable int id) {
 //        FonctionSalle fonctionSalle = fonctionSalleService.findById(id);
 //        if (fonctionSalle != null && fonctionSalleService.delete(fonctionSalle)) {
@@ -262,7 +336,7 @@ public class Controller {
 //    }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @GetMapping(value = "portes/etage/{idEtage}")
+    @GetMapping(value = "/portes/etage/{idEtage}")
     public ResponseEntity<Collection<PorteDTO>> findAllPorteByEtage(@PathVariable int idEtage) {
         Etage etage = etageService.findById(idEtage);
         if (etage != null) {
@@ -310,17 +384,24 @@ public class Controller {
 //    }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @PatchMapping(value = "salle/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/salle/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SalleDTO> updateSalle(@PathVariable int id, @Valid @RequestBody SalleDTO salleDTO) {
         Salle salle = salleService.findById(id);
         if (salle != null) {
+            boolean set = false;
             if (salleService.findSalleByNom(salleDTO.getProperties().getNom()) == null) {
                 salle.setNom(salleDTO.getProperties().getNom());
+                set = true;
             }
             if (fonctionSalleService.conflict(salleDTO.getProperties().getFonction().getNom())) {
                 salle.setFonction(fonctionSalleService.findByNom(salleDTO.getProperties().getFonction().getNom()));
+                set = true;
             }
-            return ResponseEntity.ok(SalleDTO.create(salleService.save(salle)));
+            if (set) {
+                return ResponseEntity.ok(SalleDTO.create(salleService.save(salle)));
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
         }
         return ResponseEntity.notFound().build();
     }
@@ -336,7 +417,7 @@ public class Controller {
 //    }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @GetMapping(value = "salles/etage/{idEtage}")
+    @GetMapping(value = "/salles/etage/{idEtage}")
     public ResponseEntity<Collection<SalleDTO>> findAllSalleByEtage(@PathVariable int idEtage) {
         Etage etage = etageService.findById(idEtage);
         if (etage != null) {
@@ -346,7 +427,7 @@ public class Controller {
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @GetMapping(value = "salle/nom/{nom}")
+    @GetMapping(value = "/salle/nom/{nom}")
     public ResponseEntity<SalleDTO> findSalleByNumero(@PathVariable String nom) {
         Salle salle = salleService.findSalleByNom(nom);
         if (salle != null) {
@@ -380,7 +461,7 @@ public class Controller {
     //////////////////////////////////////////////////////////////
 
 //    @CrossOrigin(origins = "*", allowedHeaders = "*")
-//    @GetMapping(value = "trajet/porteDepart/{idPorte}/salle/{idSalle}")
+//    @GetMapping(value = "/trajet/porteDepart/{idPorte}/salle/{idSalle}")
 //    public ResponseEntity<Collection<LineStringDTO>> findTrajet(@PathVariable int idPorte, @PathVariable int idSalle) {
 //        ArrayList<LineStringDTO> trajets = new ArrayList<>();
 //        Porte porteDepart = porteService.findById(idPorte);
@@ -395,7 +476,7 @@ public class Controller {
 //    }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @GetMapping(value = "trajet/porteDepart/{idPorte}/salle/{idSalle}")
+    @GetMapping(value = "/trajet/porteDepart/{idPorte}/salle/{idSalle}")
     public ResponseEntity<Collection<LineStringDTO>> findTrajet(@PathVariable int idPorte, @PathVariable int idSalle) {
         Porte porteDepart = porteService.findById(idPorte);
         Salle salleArrivee = salleService.findById(idSalle);

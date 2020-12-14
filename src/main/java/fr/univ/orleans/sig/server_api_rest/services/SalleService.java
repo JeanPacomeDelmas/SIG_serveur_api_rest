@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 
 @Service
-public class SalleService extends SuperService implements GenericService<Salle> {
+public class SalleService extends SuperService implements GenericService<Salle, Integer> {
 
     @Autowired
     private SalleRepository salleRepository;
@@ -23,7 +23,7 @@ public class SalleService extends SuperService implements GenericService<Salle> 
     }
 
     @Override
-    public Salle findById(int id) {
+    public Salle findById(Integer id) {
         return salleRepository.findById(id).orElse(null);
     }
 

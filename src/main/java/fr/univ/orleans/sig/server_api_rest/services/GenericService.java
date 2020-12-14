@@ -2,10 +2,10 @@ package fr.univ.orleans.sig.server_api_rest.services;
 
 import java.util.*;
 
-public interface GenericService<E> {
+public interface GenericService<E, ID> {
 
     Collection<E> findAll();
-    E findById(int id);
+    E findById(ID id);
     E save(E entity);
     E update(E entity);
     boolean delete(E entity);

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 
 @Service
-public class FonctionSalleService implements GenericService<FonctionSalle> {
+public class FonctionSalleService implements GenericService<FonctionSalle, Integer> {
 
     @Autowired
     private FonctionSalleRepository fonctionSalleRepository;
@@ -19,7 +19,7 @@ public class FonctionSalleService implements GenericService<FonctionSalle> {
     }
 
     @Override
-    public FonctionSalle findById(int id) {
+    public FonctionSalle findById(Integer id) {
         return fonctionSalleRepository.findById(id).orElse(null);
     }
 
