@@ -7,10 +7,13 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,6 +35,46 @@ public class Controller {
     private PorteService porteService;
     @Autowired
     private TrajetService trajetService;
+
+
+    //////////////////////////////////////////////////////////////
+    ////////////////////  UTILISATEUR ////////////////////////////
+    //////////////////////////////////////////////////////////////
+
+    ////////////////////// SESSION
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @GetMapping(value = "/launch")
+    public ResponseEntity<String> launch(HttpSession session) {
+
+        //TODO Ajout de l'id dans la BD pour identifier un user
+        return new ResponseEntity<>(session.getId(), HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @PatchMapping(value = "/utilisateur/{id}")
+    public ResponseEntity<String> updateUtilisateur(@PathVariable String id) {
+        /// Un user a : un id (token de session), une position (heure à laquelle ils ont flashé leur dernier QR code)
+        return new ResponseEntity<>("UpdateUser", HttpStatus.OK);
+    }
+
+    //////////////////////////////////////////////////////////////
+    //////////////////////  QR CODE //////////////////////////////
+    //////////////////////////////////////////////////////////////
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @PostMapping(value = "/qrcode")
+    public ResponseEntity<String> addQRCode(@PathVariable String id) {
+
+        // Un Qr code a un id (String correspondant au QRcode + une position)
+        return new ResponseEntity<>("AddQrcode", HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @GetMapping(value = "/qrcodes")
+    public ResponseEntity<String/*QRcode*/> finAllQrCodes() {
+        // Un Qr code a un id (String correspondant au QRcode + une position)
+        return new ResponseEntity<>("AddQrcode", HttpStatus.OK);
+    }
+
 
     //////////////////////////////////////////////////////////////
     //////////////////// FONCTION_SALLE //////////////////////////
