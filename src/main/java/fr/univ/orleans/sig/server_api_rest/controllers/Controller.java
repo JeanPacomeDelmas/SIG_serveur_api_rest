@@ -34,7 +34,7 @@ public class Controller {
     private PorteService porteService;
     @Autowired
     private TrajetService trajetService;
-    /*@Autowired
+    @Autowired
     private UtilisateurService utilisateurService;
     @Autowired
     private QRcodeService qRcodeService;
@@ -168,7 +168,7 @@ public class Controller {
             return ResponseEntity.created(location).body(QRcodeDTO.create(qRcode));
         }
         return ResponseEntity.badRequest().build();
-    }*/
+    }
 
     //////////////////////////////////////////////////////////////
     //////////////////// FONCTION_SALLE //////////////////////////
