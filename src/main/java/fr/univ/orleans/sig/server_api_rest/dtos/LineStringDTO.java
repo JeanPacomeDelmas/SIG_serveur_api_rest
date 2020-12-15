@@ -4,6 +4,7 @@ import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -11,6 +12,7 @@ public class LineStringDTO {
 
     private final String type;
     private ArrayList<ArrayList<Double>> coordinates;
+    @Valid
     private SubPorteDTO properties;
 
     public static LineStringDTO create(LineString lineString, Etage etage) {

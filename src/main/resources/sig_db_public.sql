@@ -535,3 +535,6 @@ CREATE INDEX salle_geom_idx ON public.salle USING gist (geom);
 -- PostgreSQL database dump complete
 --
 
+
+INSERT INTO qrcode(text, id_etage, geom) values ('blabla', 1, ST_GeomFromText('POINT (35 12)'));
+
