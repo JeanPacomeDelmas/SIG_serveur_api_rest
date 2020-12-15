@@ -5,10 +5,12 @@ import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 import fr.univ.orleans.sig.server_api_rest.entities.FonctionSalle;
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
 import fr.univ.orleans.sig.server_api_rest.repositories.SalleRepository;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Service
@@ -65,6 +67,16 @@ public class SalleService extends SuperService implements GenericService<Salle, 
 
     public Salle findSalleByEtageAndFonctionCouloir(Etage etage, FonctionSalle fonctionSalleCouloir) {
         return salleRepository.findByEtageAndFonction(etage, fonctionSalleCouloir);
+    }
+
+    public Salle findSalleByPoint(Point point, Etage etage) {
+        ArrayList<Salle> salles = (ArrayList<Salle>) salleRepository.findAllByEtage(etage);
+        for (Salle salle : salles) {
+            if (salle.getGeom().contains(point)) {
+                return salle;
+            }
+        }
+        return null;
     }
 
 }

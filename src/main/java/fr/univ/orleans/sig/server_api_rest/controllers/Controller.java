@@ -4,6 +4,7 @@ import fr.univ.orleans.sig.server_api_rest.dtos.*;
 import fr.univ.orleans.sig.server_api_rest.entities.*;
 import fr.univ.orleans.sig.server_api_rest.services.*;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -456,6 +457,27 @@ public class Controller {
         return ResponseEntity.notFound().build();
     }
 
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @GetMapping(value = "/salle/point/{x}/{y}/etage/{idEtage}")
+    public ResponseEntity<SalleDTO> findSalleByPoint(@PathVariable double x, @PathVariable double y, @PathVariable int idEtage) {
+        Point point = null;
+        try {
+            point = (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
+        } catch (ParseException e) {
+            e.printStackTrace();
+            ResponseEntity.badRequest().build();
+        }
+        Etage etage = etageService.findById(idEtage);
+        if (etage == null) {
+            ResponseEntity.badRequest().build();
+        }
+        Salle salle = salleService.findSalleByPoint(point, etage);
+        if (salle != null) {
+            return ResponseEntity.ok(SalleDTO.create(salle));
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     //////////////////////////////////////////////////////////////
     /////////////////////// ESCALIER /////////////////////////////
     //////////////////////////////////////////////////////////////
@@ -479,22 +501,6 @@ public class Controller {
     //////////////////////////////////////////////////////////////
     ///////////////////////// AUTRES /////////////////////////////
     //////////////////////////////////////////////////////////////
-
-//    @CrossOrigin(origins = "*", allowedHeaders = "*")
-//    @GetMapping(value = "/trajet/porteDepart/{idPorte}/salle/{idSalle}")
-//    public ResponseEntity<Collection<LineStringDTO>> findTrajet(@PathVariable int idPorte, @PathVariable int idSalle) {
-//        ArrayList<LineStringDTO> trajets = new ArrayList<>();
-//        Porte porteDepart = porteService.findById(idPorte);
-//        Salle salleArrivee = salleService.findById(idSalle);
-//        if (porteDepart != null && salleArrivee != null) {
-//            Map<LineString, Etage> etapes = trajetService.findEtageTrajet(porteDepart, salleArrivee);
-//            for (LineString lineString : etapes.keySet()) {
-//                trajets.add(LineStringDTO.create(lineString, etapes.get(lineString)));
-//            }
-//            return ResponseEntity.ok(trajets);
-//        }
-//        return ResponseEntity.badRequest().build();
-//    }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @GetMapping(value = "/trajet/porteDepart/{idPorte}/salle/{idSalle}")

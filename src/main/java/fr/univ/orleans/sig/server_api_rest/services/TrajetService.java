@@ -163,91 +163,28 @@ public class TrajetService {
         return voisins;
     }
 
-//    private Graph<Noeud> initializeGraph(Noeud from, double range) throws ParseException {
-//        Set<Noeud> noeuds = new HashSet<>();
-//        Map<String, Set<String>> connections = new HashMap<>();
-//
-//        ArrayList<Point> pointsPorte =
-//                (ArrayList<Point>) porteService.findAllPorteByEtage(
-//                        from.getEtage()).stream().map(value -> {
-//                    try {
-//                        return milieuLineString(value.getGeom());
-//                    } catch (ParseException e) {
-//                        e.printStackTrace();
-//                        return null;
-//                    }
-//                }).collect(Collectors.toList());
-//        for (Point point : pointsPorte) {
-//            Noeud n = new Noeud(point, from.getEtage());
-//            noeuds.add(n);
-//            connections.put(n.getId(), new HashSet<>());
-//        }
-//
-//        Noeud noeud = from;
-//        LinkedList<Noeud> voisins = voisinsNoeud(range, noeud);
-//        noeuds.add(noeud);
-//        connections.put(noeud.getId(), voisins.stream().map(Noeud::getId).collect(Collectors.toSet()));
-//
-//        for (Point point : pointsPorte) {
-//            if (auVoisinagePoint(range, noeud.getPoint(), point)) {
-//                connections.get(point.toString()).add(noeud.getId());
-//                connections.get(noeud.getId()).add(point.toString());
-//            }
-//        }
-//
-//        int acc = 0;
-//        while (!voisins.isEmpty()) {
-//            acc++;
-//            if (acc % 100 == 0) {
-//                System.out.println(acc);
-//            }
-//            noeud = voisins.poll();
-////            System.out.println(voisins.size() + ", " + noeud.getId());
-//            noeuds.add(noeud);
-//            for (Noeud v : voisinsNoeud(range, noeud)) {
-//                boolean contains = false;
-//                for (Noeud n1 : noeuds) {
-//                    if (n1.getId().equals(v.getId())) {
-//                        contains = true;
-//                        break;
-//                    }
-//                }
-//                if (!contains) {
-//                    for (Noeud n2 : voisins) {
-//                        if (n2.getId().equals(v.getId())) {
-//                            contains = true;
-//                            break;
-//                        }
-//                    }
-//                }
-//                if (!contains) {
-//                    voisins.add(v);
-//                }
-////                if (!noeuds.contains(v) && !voisins.contains(v)) {
-////                    voisins.add(v);
-////                }
-//            }
-//            connections.put(noeud.getId(), voisins.stream().map(Noeud::getId).collect(Collectors.toSet()));
-//
-//            for (Point point : pointsPorte) {
-//                if (auVoisinagePoint(range, noeud.getPoint(), point)) {
-//                    connections.get(point.toString()).add(noeud.getId());
-//                    connections.get(noeud.getId()).add(point.toString());
-//                }
-//            }
-//        }
-//
-////        System.out.println("size: " + noeuds.size());
-////        for (Noeud n : noeuds) {
-////            System.out.println(n.getId());
-////        }
-//
-//        return new Graph<>(noeuds, connections);
-//    }
-
     private Point createPoint(double x, double y) throws ParseException {
         return (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
     }
+
+    private Collection<LineString> borduresPolygon(Polygon polygon) throws ParseException {
+        ArrayList<LineString> lineStrings = new ArrayList<>();
+        for (int i = 0; i < polygon.getCoordinates().length - 1; i++) {
+            lineStrings.add((LineString) SuperService.wktToGeometry(
+                    "LINESTRING ("+
+                            polygon.getCoordinates()[i].getX() + " " + polygon.getCoordinates()[i].getY() + ", " +
+                            polygon.getCoordinates()[i + 1].getX() + " " + polygon.getCoordinates()[i + 1].getY() + ")"));
+        }
+        return lineStrings;
+    }
+
+    public double coeffDirecteur(LineString lineString) {
+        return (lineString.getEndPoint().getY() - lineString.getStartPoint().getY()) / (lineString.getEndPoint().getX() - lineString.getStartPoint().getX());
+    }
+
+//    private boolean segmentsSecant(LineString lineString1, LineString lineString2) {
+//        Point temoin =
+//    }
 
     private Graph<Noeud> initializeGraph(Noeud from, Noeud to, Escalier escalier, double range) throws ParseException {
         Set<Noeud> noeuds = new HashSet<>();
