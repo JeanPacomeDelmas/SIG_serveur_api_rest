@@ -384,7 +384,7 @@ public class TrajetService {
             Noeud depart = new Noeud(milieuLineString(lineStrings[i]), etages[i]);
             Noeud objectif = new Noeud(milieuLineString(lineStrings[i + 1]), etages[i + 1]);
 
-            Graphe<Noeud> graphe = initializeGraph(depart, objectif, escaliers.get(i), 1d);
+            Graphe<Noeud> graphe = initializeGraph(depart, objectif, escaliers.get(0), 1d);
             RechercheChemin<Noeud> rechercheChemin = new RechercheChemin<>(graphe, new HeuristiqueNoeud(), new HeuristiqueNoeud());
             ArrayList<Noeud> noeuds = (ArrayList<Noeud>) rechercheChemin.findRoute(depart, objectif);
             ArrayList<Point> points = (ArrayList<Point>) noeuds.stream().map(Noeud::getPoint).collect(Collectors.toList());
