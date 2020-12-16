@@ -258,6 +258,10 @@ INSERT INTO public.salle (gid, id_etage, nom, id_fonctio, geom) VALUES (33, 2, '
 
 ------------------------------------------------------------------------------------------------------------------------
 
+INSERT INTO utilisateur(nom, id_etage, date, geom) values ('bernard', 1, NOW(), ST_GeomFromText('POINT (35 12)'));
+
+------------------------------------------------------------------------------------------------------------------------
+
 SELECT pg_catalog.setval('public.escalier_gid_seq', 1, true);
 
 SELECT pg_catalog.setval('public.etage_id_seq', 2, true);

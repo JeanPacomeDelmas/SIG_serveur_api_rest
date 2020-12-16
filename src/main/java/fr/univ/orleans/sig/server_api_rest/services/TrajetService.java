@@ -291,17 +291,6 @@ public class TrajetService {
 
         Etage etageCourant = from.getEtage();
 
-        ArrayList<Point> pointsPortes =
-                (ArrayList<Point>) porteService.findAllPorteByEtage(
-                        etageCourant).stream().map(value -> {
-                    try {
-                        return milieuLineString(value.getGeom());
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                }).collect(Collectors.toList());
-
         Polygon couloir = polygonCouloirByEtage(etageCourant);
         Coordinate[] coordinatesCouloir = couloir.getCoordinates();
         Point H = createPoint(coordinatesCouloir[0].getX(), coordinatesCouloir[0].getY());
@@ -337,24 +326,6 @@ public class TrajetService {
             }
         }
 
-        for (Point point : pointsPortes) {
-            Noeud porte = new Noeud(point, etageCourant);
-            noeuds.add(porte);
-            ArrayList<Noeud> voisins = new ArrayList<>();
-            for (Noeud voisinPotentiel : noeuds) {
-                if (auVoisinagePoint(range, point, voisinPotentiel.getPoint())) {
-                    voisins.add(voisinPotentiel);
-                    for (String idNoeud : connections.keySet()) {
-                        String idVoisinPotentiel = voisinPotentiel.getId();
-                        if (idNoeud.equals(idVoisinPotentiel)) {
-                            connections.get(idVoisinPotentiel).add(porte.getId());
-                        }
-                    }
-                }
-            }
-            connections.put(porte.getId(), new HashSet<>(voisins.stream().map(Noeud::getId).collect(Collectors.toList())));
-        }
-
         boolean fromEstUnePorte = false;
         for (Noeud noeud : noeuds) {
             if (noeud.getId().equals(from.getId())) {
@@ -371,6 +342,11 @@ public class TrajetService {
         noeuds.add(to);
         connections.put(to.getId(), new HashSet<>(
                 connectionsNoeud(to, noeuds, connections,range).stream().map(Noeud::getId).collect(Collectors.toList())));
+
+        if (auVoisinagePoint(range, from.getPoint(), to.getPoint())) {
+            connections.get(from.getId()).remove(to.getId());
+            connections.get(to.getId()).remove(from.getId());
+        }
 
         return new Graphe<>(noeuds, connections);
     }
