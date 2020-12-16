@@ -18,11 +18,11 @@ public class Graphe<T extends NoeudGraphe> {
         return noeuds.stream()
                 .filter(node -> node.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No node found with ID"));
+                .orElseThrow(() -> new IllegalArgumentException("Noeud introuvable avec cet ID"));
     }
 
-    public Set<T> getConnections(T node) {
-        return connections.get(node.getId()).stream()
+    public Set<T> getConnections(T noeud) {
+        return connections.get(noeud.getId()).stream()
                 .map(this::getNoeud)
                 .collect(Collectors.toSet());
     }

@@ -65,9 +65,6 @@ public class TrajetService {
         Collection<Salle> salles = salleService.findAllSalleByEtage(salleArrivee.getEtage());
         for (Salle salle : salles) {
             if (salle.getGid() == salleArrivee.getGid()) {
-                ///////////////////////////////////
-                ///////////////////////////////////
-                ///////////////////////////////////
                 trajets.add(Pair.of(porteService.findPorteBySalle(salle,
                         salleService.findSalleByEtageAndFonctionCouloir(salle.getEtage(),
                                 fonctionSalleService.findByNom("couloir"))).getGeom(), salle.getEtage()));
@@ -120,11 +117,6 @@ public class TrajetService {
         return false;
     }
 
-//    private boolean pointInPolygonSansEscalier(Point point, Polygon polygon, Polygon escalier) {
-//        return pointInPolygon(point, polygon) && !escalier.contains(point);
-//    }
-
-
     private Salle couloirByEtage(Etage etage) {
         return salleService.findSalleByEtageAndFonctionCouloir(etage, fonctionSalleService.findByNom("couloir"));
     }
@@ -175,68 +167,6 @@ public class TrajetService {
         return true;
     }
 
-//    private boolean lineStringContainsPoint(Point point, LineString lineString) {
-//        return lineString.contains(point);
-//    }
-
-//    private Collection<LineString> borduresPolygon(Polygon polygon) throws ParseException {
-//        ArrayList<LineString> lineStrings = new ArrayList<>();
-//        for (int i = 0; i < polygon.getCoordinates().length - 1; i++) {
-//            lineStrings.add((LineString) SuperService.wktToGeometry(
-//                    "LINESTRING ("+
-//                            polygon.getCoordinates()[i].getX() + " " + polygon.getCoordinates()[i].getY() + ", " +
-//                            polygon.getCoordinates()[i + 1].getX() + " " + polygon.getCoordinates()[i + 1].getY() + ")"));
-//        }
-//        return lineStrings;
-//    }
-    //    public static Collection<Point> pointsLineString(LineString lineString, double distanceSeparation) throws ParseException {
-//        double a = angleDirecteur(lineString);
-//        double add_x = distanceSeparation * Math.cos(a);
-//        double add_y = distanceSeparation * Math.sin(a);
-//        ArrayList<Point> res = new ArrayList<>();
-//        Point prec = lineString.getStartPoint();
-//        for (int i = 0; i < distance(lineString.getStartPoint(), lineString.getEndPoint()) - distanceSeparation; i += distanceSeparation) {
-//            double x = prec.getX() + add_x;
-//            double y = prec.getY() + add_y;
-//            Point p = (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
-//            res.add(p);
-//            prec = (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
-//        }
-//        return res;
-//    }
-//
-//    public static double angleDirecteur(LineString lineString) {
-//        return Math.acos((lineString.getEndPoint().getX() - lineString.getStartPoint().getX() )/distance(lineString.getStartPoint(), lineString.getEndPoint()));
-//    }
-//
-//    public static double distance(Point A, Point B) {
-//        return Math.sqrt((A.getX() - B.getX()) * (A.getX() - B.getX()) + (A.getY() - B.getY()) * (A.getY() - B.getY()));
-//    }
-
-//    private PriorityQueue<Noeud> pointToNoeud(Collection<Point> points, Noeud noeud) {
-//        PriorityQueue<Noeud> noeuds = new PriorityQueue<>();
-//        for (Point point : points) {
-//            noeuds.add(new Noeud(point, noeud.getEtage()));
-//        }
-//        return noeuds;
-//    }
-
-//    private LineString lineStringFrom2Points(Point p1, Point p2) throws ParseException {
-//        return (LineString) SuperService.wktToGeometry("LINESTRING (" + p1.getX() + " " + p2.getY() + ", " +
-//                p2.getX() + " " + p2.getY() + ")");
-//    }
-
-//    private boolean pointInPolygonWithBorders(Point point, Polygon polygon) throws ParseException {
-//        if (polygon.contains(point)) {
-//            return true;
-//        }
-//        for (LineString lineString : borduresPolygon(polygon)) {
-//            if (lineString.contains(point)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     private boolean auVoisinagePoint(double range, Point point, Point objectif) {
         double distance = Math.sqrt((point.getX() - objectif.getX()) * (point.getX() - objectif.getX()) +
@@ -317,7 +247,7 @@ public class TrajetService {
                 Point point = createPoint(x, y);
                 if (pointInPolygon(point, couloir) &&
                         !pointInPolygon(point, escalier.getGeom()) &&
-                        !pointInBordurePolygon(point, escalier.getGeom())) {/////////////////////////////////////////////////////
+                        !pointInBordurePolygon(point, escalier.getGeom())) {
                     Noeud noeud = new Noeud(point, etageCourant);
                     noeuds.add(noeud);
                     connections.put(noeud.getId(), new HashSet<>(
@@ -362,7 +292,7 @@ public class TrajetService {
 
             Graphe<Noeud> graphe = initializeGraph(depart, objectif, escaliers.get(0), 1d);
             RechercheChemin<Noeud> rechercheChemin = new RechercheChemin<>(graphe, new HeuristiqueNoeud(), new HeuristiqueNoeud());
-            ArrayList<Noeud> noeuds = (ArrayList<Noeud>) rechercheChemin.findRoute(depart, objectif);
+            ArrayList<Noeud> noeuds = (ArrayList<Noeud>) rechercheChemin.plusCourtChemin(depart, objectif);
             ArrayList<Point> points = (ArrayList<Point>) noeuds.stream().map(Noeud::getPoint).collect(Collectors.toList());
 
             paths.add(createLineString(points));

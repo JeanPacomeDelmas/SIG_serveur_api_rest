@@ -22,20 +22,13 @@ public class Noeud implements NoeudGraphe {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        // null check
         if (obj == null)
             return false;
-        // type check and cast
         if (getClass() != obj.getClass())
             return false;
         Noeud noeud = (Noeud) obj;
-        // field comparison
         return Objects.equals(id, noeud.id)
                 && Objects.equals(noeud.id, id);
-    }
-
-    private double distance(Point A, Point B) {
-        return Math.sqrt((A.getX() - B.getX()) * (A.getX() - B.getX()) + (A.getY() - B.getY()) * (A.getY() - B.getY()));
     }
 
     public String getId() {

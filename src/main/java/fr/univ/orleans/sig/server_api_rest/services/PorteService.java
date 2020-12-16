@@ -65,9 +65,6 @@ public class PorteService extends SuperService implements GenericService<Porte, 
     }
 
     public Porte findPorteBySalle(Salle salle,Salle couloir) {
-        /////////////////////////
-        /////////////////////////
-        /////////////////////////
         return porteRepository.findAllBySalle(salle.getGid(), couloir.getGid()).get(0);
     }
 
