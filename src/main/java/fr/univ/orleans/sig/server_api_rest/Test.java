@@ -3,15 +3,10 @@ package fr.univ.orleans.sig.server_api_rest;
 import fr.univ.orleans.sig.server_api_rest.services.SuperService;
 import fr.univ.orleans.sig.server_api_rest.services.modele.Segment;
 import fr.univ.orleans.sig.server_api_rest.services.modele.Vecteur;
-import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 
 public class Test {
-
-    public static double coeffDirecteur(LineString lineString) {
-        return (lineString.getEndPoint().getY() - lineString.getStartPoint().getY()) / (lineString.getEndPoint().getX() - lineString.getStartPoint().getX());
-    }
 
     public static Point segmentsSecants(Segment segment1, Segment segment2) throws ParseException {
         Vecteur I = segment1.toVecteur();

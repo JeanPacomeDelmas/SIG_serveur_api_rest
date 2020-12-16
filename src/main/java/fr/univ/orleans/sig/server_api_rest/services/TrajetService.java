@@ -102,13 +102,27 @@ public class TrajetService {
         return createPoint(x, y);
     }
 
+    private boolean pointInLineString(Point point, LineString lineString) {
+        return lineString.contains(point);
+    }
+
     private boolean pointInPolygon(Point point, Polygon polygon) {
         return polygon.contains(point);
     }
 
-    private boolean pointInPolygonSansEscalier(Point point, Polygon polygon, Polygon escalier) {
-        return pointInPolygon(point, polygon) && !escalier.contains(point);
+    private boolean pointInBordurePolygon(Point point, Polygon polygon) throws ParseException {
+        ArrayList<LineString> bordures = (ArrayList<LineString>) borduresPolygon(polygon);
+        for (LineString bordure : bordures) {
+            if (pointInLineString(point, bordure)) {
+                return true;
+            }
+        }
+        return false;
     }
+
+//    private boolean pointInPolygonSansEscalier(Point point, Polygon polygon, Polygon escalier) {
+//        return pointInPolygon(point, polygon) && !escalier.contains(point);
+//    }
 
 
     private Salle couloirByEtage(Etage etage) {
@@ -118,6 +132,7 @@ public class TrajetService {
     private Polygon polygonCouloirByEtage(Etage etage) {
         return couloirByEtage(etage).getGeom();
     }
+
 
     private Collection<LineString> borduresPolygon(Polygon polygon) throws ParseException {
         ArrayList<LineString> lineStrings = new ArrayList<>();
@@ -129,7 +144,6 @@ public class TrajetService {
         }
         return lineStrings;
     }
-
 
     private Point segmentsSecants(Segment segment1, Segment segment2) throws ParseException {
         Vecteur I = segment1.toVecteur();
@@ -149,6 +163,16 @@ public class TrajetService {
             }
         }
         return null;
+    }
+
+    private boolean borduresPolygonNonSecantes(LineString lineString, Polygon polygon) throws ParseException {
+        ArrayList<LineString> bordures = (ArrayList<LineString>) borduresPolygon(polygon);
+        for (LineString bordure : bordures) {
+            if (segmentsSecants(new Segment(lineString), new Segment(bordure)) != null) {
+                return false;
+            }
+        }
+        return true;
     }
 
 //    private boolean lineStringContainsPoint(Point point, LineString lineString) {
@@ -228,7 +252,14 @@ public class TrajetService {
                     double x = noeud.getPoint().getX() + i * range;
                     double y = noeud.getPoint().getY() + j * range;
                     Point point = createPoint(x, y);
-                    if (pointInPolygonSansEscalier(point, polygon, escalier)/* && */) {
+                    ArrayList<Point> points = new ArrayList<>();
+                    points.add(noeud.getPoint());
+                    points.add(point);
+                    if (pointInPolygon(point, polygon) &&
+                            !pointInPolygon(point, escalier) &&
+                            !pointInBordurePolygon(point, escalier) &&
+                            borduresPolygonNonSecantes(createLineString(points), polygon) &&
+                            borduresPolygonNonSecantes(createLineString(points), escalier)) {
                         voisins.add(new Noeud(point, noeud.getEtage()));
                     }
                 }
@@ -295,7 +326,9 @@ public class TrajetService {
         for (double x = G.getX(); x <= D.getX(); x += range) {
             for (double y = B.getY(); y <= H.getY(); y += range) {
                 Point point = createPoint(x, y);
-                if (pointInPolygonSansEscalier(point, couloir, escalier.getGeom())) {/////////////////////////////////////////////////////
+                if (pointInPolygon(point, couloir) &&
+                        !pointInPolygon(point, escalier.getGeom()) &&
+                        !pointInBordurePolygon(point, escalier.getGeom())) {/////////////////////////////////////////////////////
                     Noeud noeud = new Noeud(point, etageCourant);
                     noeuds.add(noeud);
                     connections.put(noeud.getId(), new HashSet<>(
