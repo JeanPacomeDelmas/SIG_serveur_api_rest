@@ -4,10 +4,10 @@ import fr.univ.orleans.sig.server_api_rest.entities.Escalier;
 import fr.univ.orleans.sig.server_api_rest.entities.Etage;
 import fr.univ.orleans.sig.server_api_rest.entities.Porte;
 import fr.univ.orleans.sig.server_api_rest.entities.Salle;
-import fr.univ.orleans.sig.server_api_rest.services.A.Graph;
-import fr.univ.orleans.sig.server_api_rest.services.A.RouteFinder;
+import fr.univ.orleans.sig.server_api_rest.services.A.Graphe;
+import fr.univ.orleans.sig.server_api_rest.services.A.RechercheChemin;
 import fr.univ.orleans.sig.server_api_rest.services.A.modele.Noeud;
-import fr.univ.orleans.sig.server_api_rest.services.A.modele.NoeudScorer;
+import fr.univ.orleans.sig.server_api_rest.services.A.modele.HeuristiqueNoeud;
 import fr.univ.orleans.sig.server_api_rest.services.modele.Segment;
 import fr.univ.orleans.sig.server_api_rest.services.modele.Vecteur;
 import org.locationtech.jts.geom.*;
@@ -285,7 +285,7 @@ public class TrajetService {
     }
 
 
-    private Graph<Noeud> initializeGraph(Noeud from, Noeud to, Escalier escalier, double range) throws ParseException {
+    private Graphe<Noeud> initializeGraph(Noeud from, Noeud to, Escalier escalier, double range) throws ParseException {
         Set<Noeud> noeuds = new HashSet<>();
         Map<String, Set<String>> connections = new HashMap<>();
 
@@ -372,7 +372,7 @@ public class TrajetService {
         connections.put(to.getId(), new HashSet<>(
                 connectionsNoeud(to, noeuds, connections,range).stream().map(Noeud::getId).collect(Collectors.toList())));
 
-        return new Graph<>(noeuds, connections);
+        return new Graphe<>(noeuds, connections);
     }
 
     private Collection<LineString> pathFinding(ArrayList<Pair<LineString, Etage>> trajets, ArrayList<Escalier> escaliers) throws ParseException {
@@ -384,9 +384,9 @@ public class TrajetService {
             Noeud depart = new Noeud(milieuLineString(lineStrings[i]), etages[i]);
             Noeud objectif = new Noeud(milieuLineString(lineStrings[i + 1]), etages[i + 1]);
 
-            Graph<Noeud> graph = initializeGraph(depart, objectif, escaliers.get(i), 1d);
-            RouteFinder<Noeud> routeFinder = new RouteFinder<>(graph, new NoeudScorer(), new NoeudScorer());
-            ArrayList<Noeud> noeuds = (ArrayList<Noeud>) routeFinder.findRoute(depart, objectif);
+            Graphe<Noeud> graphe = initializeGraph(depart, objectif, escaliers.get(i), 1d);
+            RechercheChemin<Noeud> rechercheChemin = new RechercheChemin<>(graphe, new HeuristiqueNoeud(), new HeuristiqueNoeud());
+            ArrayList<Noeud> noeuds = (ArrayList<Noeud>) rechercheChemin.findRoute(depart, objectif);
             ArrayList<Point> points = (ArrayList<Point>) noeuds.stream().map(Noeud::getPoint).collect(Collectors.toList());
 
             paths.add(createLineString(points));

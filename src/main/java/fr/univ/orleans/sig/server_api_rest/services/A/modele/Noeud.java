@@ -1,12 +1,12 @@
 package fr.univ.orleans.sig.server_api_rest.services.A.modele;
 
 import fr.univ.orleans.sig.server_api_rest.entities.Etage;
-import fr.univ.orleans.sig.server_api_rest.services.A.GraphNode;
+import fr.univ.orleans.sig.server_api_rest.services.A.NoeudGraphe;
 import org.locationtech.jts.geom.Point;
 
 import java.util.Objects;
 
-public class Noeud implements GraphNode {
+public class Noeud implements NoeudGraphe {
 
     private final String id;
     private final Point point;
@@ -32,19 +32,10 @@ public class Noeud implements GraphNode {
         // field comparison
         return Objects.equals(id, noeud.id)
                 && Objects.equals(noeud.id, id);
-//        if (getClass().equals(obj.getClass())) {
-//            Noeud noeud = (Noeud) obj;
-//            return id.equals(noeud.id) && noeud.id.equals(id);
-//        }
-//        return false;
     }
 
     private double distance(Point A, Point B) {
         return Math.sqrt((A.getX() - B.getX()) * (A.getX() - B.getX()) + (A.getY() - B.getY()) * (A.getY() - B.getY()));
-    }
-
-    public boolean voisinDe(Noeud noeud, double range) {
-        return distance(point, noeud.point) <= range;
     }
 
     public String getId() {

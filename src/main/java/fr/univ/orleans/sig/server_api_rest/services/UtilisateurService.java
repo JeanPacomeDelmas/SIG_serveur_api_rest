@@ -62,4 +62,5 @@ public class UtilisateurService extends SuperService implements GenericService<U
 	public Collection<Utilisateur> findAllUtilisateurByEtage(Etage etage) {
 		return utilisateurRepository.findAllByEtage(etage.getGid());
 	}
+
 }

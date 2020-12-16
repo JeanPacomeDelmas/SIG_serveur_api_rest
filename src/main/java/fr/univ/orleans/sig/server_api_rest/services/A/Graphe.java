@@ -4,18 +4,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Graph<T extends GraphNode> {
+public class Graphe<T extends NoeudGraphe> {
 
-    private final Set<T> nodes;
+    private final Set<T> noeuds;
     private final Map<String, Set<String>> connections;
 
-    public Graph(Set<T> nodes, Map<String, Set<String>> connections) {
-        this.nodes = nodes;
+    public Graphe(Set<T> noeuds, Map<String, Set<String>> connections) {
+        this.noeuds = noeuds;
         this.connections = connections;
     }
 
-    public T getNode(String id) {
-        return nodes.stream()
+    public T getNoeud(String id) {
+        return noeuds.stream()
                 .filter(node -> node.getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No node found with ID"));
@@ -23,7 +23,7 @@ public class Graph<T extends GraphNode> {
 
     public Set<T> getConnections(T node) {
         return connections.get(node.getId()).stream()
-                .map(this::getNode)
+                .map(this::getNoeud)
                 .collect(Collectors.toSet());
     }
 

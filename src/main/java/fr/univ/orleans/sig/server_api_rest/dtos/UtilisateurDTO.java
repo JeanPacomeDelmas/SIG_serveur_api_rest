@@ -4,7 +4,6 @@ import fr.univ.orleans.sig.server_api_rest.entities.Utilisateur;
 
 import javax.validation.constraints.NotBlank;
 import java.sql.Timestamp;
-import java.util.Date;
 
 public class UtilisateurDTO {
 
@@ -19,7 +18,6 @@ public class UtilisateurDTO {
 				PointDTO.create(utilisateur.getPosition(), utilisateur.getEtage()),
 				EtageDTO.create(utilisateur.getEtage()),
 				utilisateur.getDateDernierScan());
-//		return new UtilisateurDTO(utilisateur.getUsername());
 	}
 
 	private UtilisateurDTO(String username, PointDTO position, EtageDTO etage, Timestamp dateDernierScan) {
@@ -28,13 +26,6 @@ public class UtilisateurDTO {
 		this.etage = etage;
 		this.dateDernierScan = dateDernierScan;
 	}
-
-//	private UtilisateurDTO(String username) {
-//		this.username = username;
-//		this.position = null;
-//		this.etage = null;
-//		this.dateDernierScan = null;
-//	}
 
 	public String getUsername() { return username; }
 

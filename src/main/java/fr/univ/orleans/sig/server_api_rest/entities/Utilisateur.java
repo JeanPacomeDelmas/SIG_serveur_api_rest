@@ -23,13 +23,6 @@ public class Utilisateur {
 
 	public Utilisateur() {}
 
-//	public Utilisateur(String username) {
-//		this.username = username;
-//		this.position = null;
-//		this.etage = null;
-//		this.dateDernierScan = null;
-//	}
-
 	public Utilisateur(String username, Point position, Etage etage, Timestamp dateDernierScan) {
 		this.username = username;
 		this.position = position;

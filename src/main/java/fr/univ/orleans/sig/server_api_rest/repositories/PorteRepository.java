@@ -11,8 +11,6 @@ import java.util.List;
 
 public interface PorteRepository extends JpaRepository<Porte, Integer> {
 
-    boolean existsBySalle1AndSalle2AndGeom(Salle salle1, Salle salle2, LineString geom);
-
     Porte findBySalle1AndSalle2AndGeom(Salle salle1, Salle salle2, LineString geom);
 
     @Query("select p from Porte p where p.salle1.etage.gid = :idEtage")
