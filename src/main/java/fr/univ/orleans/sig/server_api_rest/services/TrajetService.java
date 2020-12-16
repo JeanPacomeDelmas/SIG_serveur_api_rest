@@ -8,6 +8,8 @@ import fr.univ.orleans.sig.server_api_rest.services.A.Graph;
 import fr.univ.orleans.sig.server_api_rest.services.A.RouteFinder;
 import fr.univ.orleans.sig.server_api_rest.services.A.modele.Noeud;
 import fr.univ.orleans.sig.server_api_rest.services.A.modele.NoeudScorer;
+import fr.univ.orleans.sig.server_api_rest.services.modele.Segment;
+import fr.univ.orleans.sig.server_api_rest.services.modele.Vecteur;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,23 @@ public class TrajetService {
     @Autowired
     private PorteService porteService;
 
+    private Point createPoint(double x, double y) throws ParseException {
+        return (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
+    }
+
+    private LineString createLineString(ArrayList<Point> points) throws ParseException {
+        StringBuilder lineString = new StringBuilder("LINESTRING (");
+        for (int j = 0; j < points.size(); j++) {
+            lineString.append(points.get(j).getX()).append(" ").append(points.get(j).getY());
+            if (j + 1 < points.size()) {
+                lineString.append(", ");
+            }
+        }
+        lineString.append(")");
+        return (LineString) SuperService.wktToGeometry(lineString.toString());
+    }
+
+
     private ArrayList<Pair<LineString, Etage>> findEtageTrajet(Porte porteDepart, Salle salleArrivee) {
         ArrayList<Pair<LineString, Etage>> trajets = new ArrayList<>();
         trajets.add(Pair.of(porteDepart.getGeom(), porteDepart.getSalle1().getEtage()));
@@ -37,6 +56,12 @@ public class TrajetService {
                 trajets.add(Pair.of(lineString, porteDepart.getSalle1().getEtage()));
             }
         }
+        trajets.addAll(findEtape(salleArrivee));
+        return trajets;
+    }
+
+    private ArrayList<Pair<LineString, Etage>> findEtape(Salle salleArrivee) {
+        ArrayList<Pair<LineString, Etage>> trajets = new ArrayList<>();
         Collection<Salle> salles = salleService.findAllSalleByEtage(salleArrivee.getEtage());
         for (Salle salle : salles) {
             if (salle.getGid() == salleArrivee.getGid()) {
@@ -52,16 +77,78 @@ public class TrajetService {
         return trajets;
     }
 
+    private ArrayList<Pair<LineString, Etage>> findEtageTrajet(Point point, Etage etage, Salle salleArrivee) throws ParseException {
+        ArrayList<Pair<LineString, Etage>> trajets = new ArrayList<>();
+        ArrayList<Point> points = new ArrayList<>();
+        points.add(point);
+        points.add(point);
+        LineString lineStringDepart = createLineString(points);
+        trajets.add(Pair.of(lineStringDepart, etage));
+        if (etage.getGid() != salleArrivee.getEtage().getGid()) {
+            for (LineString lineString : escalierService.lineStringEscalierToEscalier(etage, salleArrivee.getEtage())) {
+                trajets.add(Pair.of(lineString, etage));
+            }
+        }
+        trajets.addAll(findEtape(salleArrivee));
+        return trajets;
+    }
+
+
     private Point milieuLineString(LineString lineString) throws ParseException {
         Point A = lineString.getStartPoint();
         Point B = lineString.getEndPoint();
         double x = (A.getX() + B.getX()) / 2;
         double y = (A.getY() + B.getY()) / 2;
-        return (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
+        return createPoint(x, y);
+    }
+
+    private boolean pointInPolygon(Point point, Polygon polygon) {
+        return polygon.contains(point);
+    }
+
+    private boolean pointInPolygonSansEscalier(Point point, Polygon polygon, Polygon escalier) {
+        return pointInPolygon(point, polygon) && !escalier.contains(point);
+    }
+
+
+    private Salle couloirByEtage(Etage etage) {
+        return salleService.findSalleByEtageAndFonctionCouloir(etage, fonctionSalleService.findByNom("couloir"));
     }
 
     private Polygon polygonCouloirByEtage(Etage etage) {
         return couloirByEtage(etage).getGeom();
+    }
+
+    private Collection<LineString> borduresPolygon(Polygon polygon) throws ParseException {
+        ArrayList<LineString> lineStrings = new ArrayList<>();
+        for (int i = 0; i < polygon.getCoordinates().length - 1; i++) {
+            ArrayList<Point> points = new ArrayList<>();
+            points.add(createPoint(polygon.getCoordinates()[i].getX(), polygon.getCoordinates()[i].getY()));
+            points.add(createPoint(polygon.getCoordinates()[i + 1].getX(), polygon.getCoordinates()[i + 1].getY()));
+            lineStrings.add(createLineString(points));
+        }
+        return lineStrings;
+    }
+
+
+    private Point segmentsSecants(Segment segment1, Segment segment2) throws ParseException {
+        Vecteur I = segment1.toVecteur();
+        Vecteur J = segment2.toVecteur();
+        Point A = segment1.getDebut();
+        Point C = segment2.getDebut();
+
+        if (I.getX() * J.getY() - I.getY() * J.getX() != 0) { // pas parallele
+            double m = - ( I.getX() * C.getY() + I.getY() * A.getX() - I.getX() * A.getY() - I.getY() * C.getX() ) /
+                    ( I.getX() * J.getY() - I.getY() * J.getX() );
+            double k = - ( A.getX() * J.getY() - C.getX() * J.getY() - J.getX() * A.getY() + J.getX() * C.getY() ) /
+                    ( I.getX() * J.getY() - I.getY() * J.getX() );
+            if (m > 0 && k > 0 && m < 1 && k < 1) {
+                double x = A.getX() + k * I.getX();
+                double y = A.getY() + k * I.getY();
+                return createPoint(x, y);
+            }
+        }
+        return null;
     }
 
 //    private boolean lineStringContainsPoint(Point point, LineString lineString) {
@@ -78,14 +165,7 @@ public class TrajetService {
 //        }
 //        return lineStrings;
 //    }
-
-    private boolean auVoisinagePoint(double range, Point point, Point objectif) {
-        double distance = Math.sqrt((point.getX() - objectif.getX()) * (point.getX() - objectif.getX()) +
-                (point.getY() - objectif.getY()) * (point.getY() - objectif.getY()));
-        return distance <= range;
-    }
-
-//    public static Collection<Point> pointsLineString(LineString lineString, double distanceSeparation) throws ParseException {
+    //    public static Collection<Point> pointsLineString(LineString lineString, double distanceSeparation) throws ParseException {
 //        double a = angleDirecteur(lineString);
 //        double add_x = distanceSeparation * Math.cos(a);
 //        double add_y = distanceSeparation * Math.sin(a);
@@ -122,14 +202,6 @@ public class TrajetService {
 //                p2.getX() + " " + p2.getY() + ")");
 //    }
 
-    private boolean pointInPolygon(Point point, Polygon polygon) {
-        return polygon.contains(point);
-    }
-
-    private boolean pointInPolygonSansEscalier(Point point, Polygon polygon, Polygon escalier) {
-        return polygon.contains(point) && !escalier.contains(point);
-    }
-
 //    private boolean pointInPolygonWithBorders(Point point, Polygon polygon) throws ParseException {
 //        if (polygon.contains(point)) {
 //            return true;
@@ -142,8 +214,10 @@ public class TrajetService {
 //        return false;
 //    }
 
-    private Salle couloirByEtage(Etage etage) {
-        return salleService.findSalleByEtageAndFonctionCouloir(etage, fonctionSalleService.findByNom("couloir"));
+    private boolean auVoisinagePoint(double range, Point point, Point objectif) {
+        double distance = Math.sqrt((point.getX() - objectif.getX()) * (point.getX() - objectif.getX()) +
+                (point.getY() - objectif.getY()) * (point.getY() - objectif.getY()));
+        return distance <= 2 * range;
     }
 
     private LinkedList<Noeud> voisinsNoeud(Noeud noeud, Polygon polygon, Polygon escalier, double range) throws ParseException {
@@ -153,8 +227,8 @@ public class TrajetService {
                 if (i != 0 || j != 0) {
                     double x = noeud.getPoint().getX() + i * range;
                     double y = noeud.getPoint().getY() + j * range;
-                    Point point = (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
-                    if (pointInPolygonSansEscalier(point, polygon, escalier)) {
+                    Point point = createPoint(x, y);
+                    if (pointInPolygonSansEscalier(point, polygon, escalier)/* && */) {
                         voisins.add(new Noeud(point, noeud.getEtage()));
                     }
                 }
@@ -163,28 +237,22 @@ public class TrajetService {
         return voisins;
     }
 
-    private Point createPoint(double x, double y) throws ParseException {
-        return (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
-    }
-
-    private Collection<LineString> borduresPolygon(Polygon polygon) throws ParseException {
-        ArrayList<LineString> lineStrings = new ArrayList<>();
-        for (int i = 0; i < polygon.getCoordinates().length - 1; i++) {
-            lineStrings.add((LineString) SuperService.wktToGeometry(
-                    "LINESTRING ("+
-                            polygon.getCoordinates()[i].getX() + " " + polygon.getCoordinates()[i].getY() + ", " +
-                            polygon.getCoordinates()[i + 1].getX() + " " + polygon.getCoordinates()[i + 1].getY() + ")"));
+    private Collection<Noeud> connectionsNoeud(Noeud noeud, Set<Noeud> noeuds, Map<String, Set<String>> connections, double range) {
+        ArrayList<Noeud> voisins = new ArrayList<>();
+        for (Noeud voisinPotentiel : noeuds) {
+            if (auVoisinagePoint(range, noeud.getPoint(), voisinPotentiel.getPoint())) {
+                voisins.add(voisinPotentiel);
+                for (String idNoeud : connections.keySet()) {
+                    String idVoisinPotentiel = voisinPotentiel.getId();
+                    if (idNoeud.equals(idVoisinPotentiel)) {
+                        connections.get(idVoisinPotentiel).add(noeud.getId());
+                    }
+                }
+            }
         }
-        return lineStrings;
+        return voisins;
     }
 
-    public double coeffDirecteur(LineString lineString) {
-        return (lineString.getEndPoint().getY() - lineString.getStartPoint().getY()) / (lineString.getEndPoint().getX() - lineString.getStartPoint().getX());
-    }
-
-//    private boolean segmentsSecant(LineString lineString1, LineString lineString2) {
-//        Point temoin =
-//    }
 
     private Graph<Noeud> initializeGraph(Noeud from, Noeud to, Escalier escalier, double range) throws ParseException {
         Set<Noeud> noeuds = new HashSet<>();
@@ -230,7 +298,6 @@ public class TrajetService {
                 if (pointInPolygonSansEscalier(point, couloir, escalier.getGeom())) {/////////////////////////////////////////////////////
                     Noeud noeud = new Noeud(point, etageCourant);
                     noeuds.add(noeud);
-
                     connections.put(noeud.getId(), new HashSet<>(
                             voisinsNoeud(noeud, couloir, escalier.getGeom(), range).stream().map(Noeud::getId).collect(Collectors.toList())));
                 }
@@ -242,7 +309,7 @@ public class TrajetService {
             noeuds.add(porte);
             ArrayList<Noeud> voisins = new ArrayList<>();
             for (Noeud voisinPotentiel : noeuds) {
-                if (auVoisinagePoint(2 * range, point, voisinPotentiel.getPoint())) {
+                if (auVoisinagePoint(range, point, voisinPotentiel.getPoint())) {
                     voisins.add(voisinPotentiel);
                     for (String idNoeud : connections.keySet()) {
                         String idVoisinPotentiel = voisinPotentiel.getId();
@@ -264,42 +331,18 @@ public class TrajetService {
         }
         if (!fromEstUnePorte) {
             noeuds.add(from);
-            ArrayList<Noeud> voisins = new ArrayList<>();
-            for (Noeud voisinPotentiel : noeuds) {
-                if (auVoisinagePoint(2 * range, from.getPoint(), voisinPotentiel.getPoint())) {
-                    voisins.add(voisinPotentiel);
-                    for (String idNoeud : connections.keySet()) {
-                        String idVoisinPotentiel = voisinPotentiel.getId();
-                        if (idNoeud.equals(idVoisinPotentiel)) {
-                            connections.get(idVoisinPotentiel).add(from.getId());
-                        }
-                    }
-                }
-            }
-            connections.put(from.getId(), new HashSet<>(voisins.stream().map(Noeud::getId).collect(Collectors.toList())));
+            connections.put(from.getId(), new HashSet<>(
+                    connectionsNoeud(from, noeuds, connections,range).stream().map(Noeud::getId).collect(Collectors.toList())));
         }
 
         noeuds.add(to);
-        ArrayList<Noeud> voisins = new ArrayList<>();
-        for (Noeud voisinPotentiel : noeuds) {
-            if (auVoisinagePoint(2 * range, to.getPoint(), voisinPotentiel.getPoint())) {
-                voisins.add(voisinPotentiel);
-                for (String idNoeud : connections.keySet()) {
-                    String idVoisinPotentiel = voisinPotentiel.getId();
-                    if (idNoeud.equals(idVoisinPotentiel)) {
-                        connections.get(idVoisinPotentiel).add(to.getId());
-                    }
-                }
-            }
-        }
-        connections.put(to.getId(), new HashSet<>(voisins.stream().map(Noeud::getId).collect(Collectors.toList())));
+        connections.put(to.getId(), new HashSet<>(
+                connectionsNoeud(to, noeuds, connections,range).stream().map(Noeud::getId).collect(Collectors.toList())));
 
         return new Graph<>(noeuds, connections);
     }
 
-    public Collection<LineString> pathFinding(Porte porteDepart, Salle salleArrivee) throws ParseException {
-        ArrayList<Pair<LineString, Etage>> trajets = findEtageTrajet(porteDepart, salleArrivee);
-        ArrayList<Escalier> escaliers = (ArrayList<Escalier>) escalierService.escalierToEscalier(porteDepart.getSalle1().getEtage(), salleArrivee.getEtage());
+    private Collection<LineString> pathFinding(ArrayList<Pair<LineString, Etage>> trajets, ArrayList<Escalier> escaliers) throws ParseException {
         ArrayList<LineString> paths = new ArrayList<>();
         LineString[] lineStrings = trajets.stream().map(Pair::getFirst).toArray(LineString[]::new);
         Etage[] etages = trajets.stream().map(Pair::getSecond).toArray(Etage[]::new);
@@ -313,17 +356,21 @@ public class TrajetService {
             ArrayList<Noeud> noeuds = (ArrayList<Noeud>) routeFinder.findRoute(depart, objectif);
             ArrayList<Point> points = (ArrayList<Point>) noeuds.stream().map(Noeud::getPoint).collect(Collectors.toList());
 
-            StringBuilder trajetString = new StringBuilder("LINESTRING (");
-            for (int j = 0; j < points.size(); j++) {
-                trajetString.append(points.get(j).getX()).append(" ").append(points.get(j).getY());
-                if (j + 1 < points.size()) {
-                    trajetString.append(", ");
-                }
-            }
-            trajetString.append(")");
-            paths.add((LineString) SuperService.wktToGeometry(trajetString.toString()));
+            paths.add(createLineString(points));
         }
         return paths;
+    }
+
+    public Collection<LineString> pathFindingPorte(Porte porteDepart, Salle salleArrivee) throws ParseException {
+        ArrayList<Pair<LineString, Etage>> trajets = findEtageTrajet(porteDepart, salleArrivee);
+        ArrayList<Escalier> escaliers = (ArrayList<Escalier>) escalierService.escalierToEscalier(porteDepart.getSalle1().getEtage(), salleArrivee.getEtage());
+        return pathFinding(trajets, escaliers);
+    }
+
+    public Collection<LineString> pathFindingPosition(Point point, Etage etage, Salle salleArrivee) throws ParseException {
+        ArrayList<Pair<LineString, Etage>> trajets = findEtageTrajet(point, etage, salleArrivee);
+        ArrayList<Escalier> escaliers = (ArrayList<Escalier>) escalierService.escalierToEscalier(etage, salleArrivee.getEtage());
+        return pathFinding(trajets, escaliers);
     }
 
 }

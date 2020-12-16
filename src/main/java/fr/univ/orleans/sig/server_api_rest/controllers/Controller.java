@@ -508,9 +508,39 @@ public class Controller {
         Porte porteDepart = porteService.findById(idPorte);
         Salle salleArrivee = salleService.findById(idSalle);
         try {
-            ArrayList<LineString> lineStrings = (ArrayList<LineString>) trajetService.pathFinding(porteDepart, salleArrivee);
+            ArrayList<LineString> lineStrings = (ArrayList<LineString>) trajetService.pathFindingPorte(porteDepart, salleArrivee);
             ArrayList<LineStringDTO> lineStringsDTO = new ArrayList<>();
             lineStringsDTO.add(LineStringDTO.create(lineStrings.get(0), porteDepart.getSalle1().getEtage()));
+            if (lineStrings.size() > 1) {
+                lineStringsDTO.add(LineStringDTO.create(lineStrings.get(1), salleArrivee.getEtage()));
+            }
+            return ResponseEntity.ok(lineStringsDTO);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @GetMapping(value = "/trajet/position/{x}/{y}/etage/{idEtage}/salle/{idSalle}")
+    public ResponseEntity<Collection<LineStringDTO>> findTrajetByPosition(@PathVariable double x, @PathVariable double y,
+                                                                          @PathVariable int idEtage, @PathVariable int idSalle) {
+        Point point = null;
+        try {
+            point = (Point) SuperService.wktToGeometry("POINT (" + x + " " + y + ")");
+        } catch (ParseException e) {
+            e.printStackTrace();
+            ResponseEntity.badRequest().build();
+        }
+        Etage etage = etageService.findById(idEtage);
+        if (etage == null) {
+            ResponseEntity.badRequest().build();
+        }
+        Salle salleArrivee = salleService.findById(idSalle);
+        try {
+            ArrayList<LineString> lineStrings = (ArrayList<LineString>) trajetService.pathFindingPosition(point,etage, salleArrivee);
+            ArrayList<LineStringDTO> lineStringsDTO = new ArrayList<>();
+            lineStringsDTO.add(LineStringDTO.create(lineStrings.get(0), etage));
             if (lineStrings.size() > 1) {
                 lineStringsDTO.add(LineStringDTO.create(lineStrings.get(1), salleArrivee.getEtage()));
             }

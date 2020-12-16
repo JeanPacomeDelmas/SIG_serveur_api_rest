@@ -14,7 +14,7 @@ public class QRcode {
 	@Column(name = "geom", nullable = false)
 	private Point position;
 	@OneToOne
-	@JoinColumn(name = "id_etage")
+	@JoinColumn(name = "id_etage", nullable = false)
 	private Etage etage;
 
 	public QRcode() {}
