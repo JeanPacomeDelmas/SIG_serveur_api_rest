@@ -294,6 +294,9 @@ public class TrajetService {
             RechercheChemin<Noeud> rechercheChemin = new RechercheChemin<>(graphe, new HeuristiqueNoeud(), new HeuristiqueNoeud());
             ArrayList<Noeud> noeuds = (ArrayList<Noeud>) rechercheChemin.plusCourtChemin(depart, objectif);
             ArrayList<Point> points = (ArrayList<Point>) noeuds.stream().map(Noeud::getPoint).collect(Collectors.toList());
+            if (points.size() == 1) {
+                points.add(points.get(0));
+            }
 
             paths.add(createLineString(points));
         }
